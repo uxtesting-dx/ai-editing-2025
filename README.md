@@ -45,22 +45,3 @@ Compile the app and deploy it using `gh-pages` to the github pages location spec
 yarn deploy
 ```
 
-# Learn more
-
-#### Language
-
-- [TypeScript](https://www.typescriptlang.org/) - a strongly-typed superset of JavaScript.
-
-#### User interface
-
-- [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) - Adobe's themed user interface components.
-- [Lit](https://lit.dev/) - Makes it easier to build web components.
-- [Web Components](https://www.webcomponents.org/) - Browser technology that lets you create custom HTML elements.
-
-#### State management
-
-- [MobX](https://mobx.js.org/) - functional, reactive state management.
-
-#### Similar apps within Adobe Research
-
-- [Fusion web prototype](https://git.corp.adobe.com/fusion/fusion-web)
