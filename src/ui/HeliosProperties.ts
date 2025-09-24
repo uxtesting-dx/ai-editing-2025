@@ -415,11 +415,6 @@ export class HeliosProperties extends MobxLitElement {
         store.contextMenuVisibility = false;
     }
 
-    private handleInputAttributeChange = (e: Event) => {
-        const input = e.target as HTMLInputElement;
-        const value = input.value;
-    }
-
     private handlePromptInputChange = (e: Event) => {
         const input = e.target as HTMLInputElement;
         const value = input.value;
@@ -464,7 +459,7 @@ export class HeliosProperties extends MobxLitElement {
         document.addEventListener('mousemove', this.handleMouseMove);
         
         // Add click listener to stop eyedropper mode
-        this.eyedropperClickHandler = (e) => this.stopEyedropperMode(e, store.currentProperty);
+        this.eyedropperClickHandler = () => this.stopEyedropperMode();
         document.addEventListener('click', this.eyedropperClickHandler);
 
 
@@ -640,7 +635,7 @@ export class HeliosProperties extends MobxLitElement {
         }
     }
     
-    private stopEyedropperMode = (e: MouseEvent, connectionLabel?: string) => {
+    private stopEyedropperMode = () => {
         // Restore normal cursor
         document.body.style.cursor = '';
 
@@ -929,7 +924,6 @@ export class HeliosProperties extends MobxLitElement {
         
         const artwork1 = store.shapes.find(shape => shape.id === "artwork1") as Photo;
         const sofa = store.shapes.find(shape => shape.id === "sofa") as Shape;
-        const sofa2 = store.shapes.find(shape => shape.id === "sofa2") as Shape;
         const sofaMaterial = store.shapes.find(shape => shape.id === "sofa-material") as Shape;
         
         // Example: Update store or trigger specific actions based on thumbnail

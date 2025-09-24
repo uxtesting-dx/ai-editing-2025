@@ -48,8 +48,6 @@ export class Store {
             (artwork1Position) => {
                 if (artwork1Position) {
 
-                    const overlayPhoto = this.shapes.find(shape => shape.id === "overlay-photo") as Shape;
-
                     const sofa = this.shapes.find(shape => shape.id === "sofa") as Shape;
                     const sofa2 = this.shapes.find(shape => shape.id === "sofa2") as Shape;
                     const sofaBack = this.shapes.find(shape => shape.id === "sofa-back") as Shape;
@@ -1455,7 +1453,6 @@ export class Store {
         const sofa = store.shapes.find(shape => shape.id === "sofa") as Shape;
         const sofa2 = store.shapes.find(shape => shape.id === "sofa2") as Shape;
         const sofaColor = store.shapes.find(shape => shape.id === "sofa-color") as Shape;
-        const sofaOrange = store.shapes.find(shape => shape.id === "sofa-orange") as Shape;
         const sofaMaterial = store.shapes.find(shape => shape.id === "sofa-material") as Shape;
         const wallBackColor = store.shapes.find(shape => shape.id === "wall-back-color") as Shape;
         const wallBack2 = store.shapes.find(shape => shape.id === "wall-back2") as Shape;
@@ -1463,7 +1460,6 @@ export class Store {
         const personBoy = store.shapes.find(shape => shape.id === "person-boy") as Shape;
         const personMan = store.shapes.find(shape => shape.id === "person-man") as Shape;
         const personOld = store.shapes.find(shape => shape.id === "person-old") as Shape;
-        const boyRight = store.shapes.find(shape => shape.id === "boy-right") as Shape;
         const artwork1 = store.shapes.find(shape => shape.id === "artwork1") as Photo;
 
         this.showAlertDialog = true;

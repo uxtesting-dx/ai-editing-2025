@@ -114,7 +114,7 @@ export abstract class ToolBase {
         this.handlePointerDown(e, shape);
       };
       const handleClick = (e: PointerEvent) => {
-        this.handleClick(e, shape);
+        this.handleClick(e);
       };
       const handleDoubleClick = (e: PointerEvent) => {
         this.handleDoubleClick(e, shape);
@@ -293,7 +293,7 @@ export abstract class ToolBase {
           this.handlePointerDownAdorner(e, shape);
         };
         const handleClick = (e: PointerEvent) => {
-          this.handleClick(e, shape);
+          this.handleClick(e);
         };
         const handleDoubleClick = (e: PointerEvent) => {
           this.handleDoubleClick(e, shape);
@@ -844,10 +844,10 @@ export abstract class ToolBase {
     // ------------------------------------------
     // ROTATE
 
-    const selectedShape = store.currentDownShape;
+    // const selectedShape = store.currentDownShape;
 
-    const screenWindowRatioX = 1.2;
-    const screenWindowRatioY = 2.4;
+    // const screenWindowRatioX = 1.2;
+    // const screenWindowRatioY = 2.4;
 
     // if (this.currentAdornerPressedId === "rotateAdorner") {
     //   if (selectedShape) {
@@ -1243,7 +1243,7 @@ export abstract class ToolBase {
   };
 
 
-  private handleClick = (e: PointerEvent, shape?: Shape | Photo) => {
+  private handleClick = (e: PointerEvent) => {
 
     if ((store.currentDownShape?.id != "artwork1")
         && (store.currentDownShape?.id != "artwork2") 

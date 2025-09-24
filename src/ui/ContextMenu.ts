@@ -164,12 +164,12 @@ export class ContextMenu extends MobxLitElement {
         }
     `;
 
-    private actionShapes: Array<Shape | Photo> = [];
+    //private actionShapes: Array<Shape | Photo> = [];
     private isDragging = false;
     private dragStartPosition = { x: 0, y: 0 };
     private currentMousePosition = { x: 0, y: 0 };
     private showDragLine = false;
-    private dragFromPosition: 'left' | 'right' = 'right';
+    //private dragFromPosition: 'left' | 'right' = 'right';
     private currentScrollTop = 0;
     
     @property({ type: Boolean })
@@ -410,7 +410,7 @@ export class ContextMenu extends MobxLitElement {
                                     -->
 
                                 ${(connectionLabel != "") ? html`
-                                    <sp-button @click=${(e: Event) => this.onActionButtonClick(e, connectionLabel)} 
+                                    <sp-button @click=${() => this.onActionButtonClick(connectionLabel)} 
                                             style="border-radius: 24px;
                                                     --spectrum-button-m-accent-fill-texticon-border-color: #00000070;">
                                         ${connectionLabel}
@@ -611,7 +611,7 @@ export class ContextMenu extends MobxLitElement {
 
         store.connectionDirection = position;
         store.currentConnectionLabel = connectionLabel;
-        this.dragFromPosition = position;
+        //this.dragFromPosition = position;
         
         // Start dragging
         this.isDragging = true;
@@ -651,7 +651,7 @@ export class ContextMenu extends MobxLitElement {
         this.requestUpdate();
     };
 
-    private onMouseUp = (e: PointerEvent) => {
+    private onMouseUp = () => {
         if (!this.isDragging) return;
         
         store.currentShapes.push(store.currentDownShape?.id.toString() ?? "");
@@ -660,7 +660,7 @@ export class ContextMenu extends MobxLitElement {
         //store.currentShapes = [];
         store.isConnectionVisible = false;
 
-        this.onConnectionClick(e, store.currentConnectionLabel);
+        this.onConnectionClick(store.currentConnectionLabel);
         
         // Hide the drag line
         this.showDragLine = false;
@@ -823,7 +823,7 @@ export class ContextMenu extends MobxLitElement {
         document.addEventListener('mousemove', this.handleMouseMove);
         
         // Add click listener to stop eyedropper mode
-        this.eyedropperClickHandler = (e) => this.stopEyedropperMode(e, connectionLabel);
+        this.eyedropperClickHandler = () => this.stopEyedropperMode();
         document.addEventListener('click', this.eyedropperClickHandler);
 
     }
@@ -1000,7 +1000,7 @@ export class ContextMenu extends MobxLitElement {
         }
     }
     
-    private stopEyedropperMode = (e: MouseEvent, connectionLabel?: string) => {
+    private stopEyedropperMode = () => {
         // Restore normal cursor
         document.body.style.cursor = '';
 
@@ -1031,10 +1031,10 @@ export class ContextMenu extends MobxLitElement {
 
     }
 
-    private onActionButtonClick(e: Event, actionLabel: string) {
+    private onActionButtonClick(actionLabel: string) {
         store.contextMenuVisibility = false;
 
-        this.onConnectionClick(e, actionLabel);
+        this.onConnectionClick(actionLabel);
 
         store.currentObject = store.currentDownShape?.id ?? "";
         store.targetEyedropper = store.currentDownShape?.id ?? "";
@@ -1051,7 +1051,7 @@ export class ContextMenu extends MobxLitElement {
         this.resetSofaOrange();
     }
 
-    private onConnectionClick(e: Event, connectionLabel: string) {
+    private onConnectionClick(connectionLabel: string) {
         store.contextMenuVisibility = false;
 
         const artwork1 = store.shapes.find(shape => shape.id === "artwork1") as Photo;

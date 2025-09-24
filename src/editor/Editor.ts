@@ -17,7 +17,6 @@ import { IReactionDisposer } from "mobx";
 import { matchesShortcut } from "../components/matchesShortcut.js";
 import { Shape, ShapeId } from "../store/Shape.js";
 import { Point2D, store, ToolId } from "../store/Store.js";
-import "../ui/Breadcrumb.js";
 import "../ui/ContextMenu.js";
 import "../ui/HeliosProperties.js";
 import { HandTool } from "./HandTool.js";
@@ -519,7 +518,7 @@ export class Editor extends MobxLitElement {
         event.preventDefault();
     };
 
-    private handleDialogClose = (event: Event) => {
+    private handleDialogClose = () => {
         store.showAlertDialog = false;
         // const dialog = this.shadowRoot?.querySelector('#alert-dialog') as any;
         // if (dialog) {

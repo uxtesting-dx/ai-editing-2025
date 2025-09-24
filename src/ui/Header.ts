@@ -5,11 +5,8 @@ import "./HelpButton.js";
 import "./SettingsButton.js";
 
 import { MobxLitElement } from "@adobe/lit-mobx";
-import { Tabs } from "@spectrum-web-components/bundle";
 import { css, html } from "lit";
-import { customElement, query } from "lit/decorators.js";
-
-import { AppMode, store } from "../store/Store.js";
+import { customElement } from "lit/decorators.js";
 
 /**
  * The application header.
@@ -75,9 +72,6 @@ export class Header extends MobxLitElement {
             </div>
         `;
     }
-
-    @query("#app-header-tabs")
-    private tabs!: Tabs;
 
     // private changeAppMode() {
     //     store.appMode = this.tabs.selected as AppMode;
