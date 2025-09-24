@@ -1,7 +1,5 @@
 # template-web-app-swc
 
-This repo provides a starting point for creating web applications using Adobe-themed components. The code is written in [TypeScript](https://www.typescriptlang.org/), and relies on [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) for the user interface and [MobX](https://mobx.js.org/README.html) for state management.
-
 To create a new application based on the code found here, click the green "Use this template" button. Once you have created a new repo and cloned the code locally on your machine, you'll need to change settings that include "template-web-app-swc" in the `package.json` and `vite.config.ts` files. And of course, you should update this README file!
 
 # Development
