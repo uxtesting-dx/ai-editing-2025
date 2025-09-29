@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 export default defineConfig(({ mode }) => {
   let base = "";
   if (mode === "production") {
-    base = "/experiments/stardust-labs-demo/";
+    base = "";
   }
   return {
     base,

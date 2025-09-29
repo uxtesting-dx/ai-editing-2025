@@ -2,6 +2,7 @@ import "@spectrum-web-components/action-button/sp-action-button.js";
 import '@spectrum-web-components/dialog/sp-dialog.js';
 import "@spectrum-web-components/color-wheel/sp-color-wheel.js";
 import "@spectrum-web-components/divider/sp-divider.js";
+import "@spectrum-web-components/progress-circle/sp-progress-circle.js";
 import "@spectrum-web-components/icons-workflow/icons/sp-icon-remove";
 import "@spectrum-web-components/icons-workflow/icons/sp-icon-add";
 import "@spectrum-web-components/icons-workflow/icons/sp-icon-full-screen";
@@ -188,6 +189,17 @@ export class Editor extends MobxLitElement {
             z-index: 999;
         }
 
+        #is-generating {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 999;
+        }
+
         @keyframes colorWheelFadeIn {
             0% {
                 opacity: 0;
@@ -326,7 +338,7 @@ export class Editor extends MobxLitElement {
 
     protected override render() {
         const rootTransform = `translate(${this.rootTranslate.x},${this.rootTranslate.y})`;
-        const { center, zoom } = store;
+        const { center, zoom, artboard } = store;
         const sceneTransform = `scale(${zoom}) translate(${-center.x},${-center.y})`;
 
         return html`
@@ -412,7 +424,23 @@ export class Editor extends MobxLitElement {
                 </div>
             ` : ''}
 
-
+            <!--
+            ${store.showIsGenerating ? html`
+                <div id="is-generating" style="position: absolute; 
+                            top: ${store.artwork1.y + store.artwork1.height/2}px; 
+                            left: ${store.artwork1.x + store.artwork1.width/2}px; 
+                            width: 100%; 
+                            height: 100%; 
+                            z-index: 999;">
+                    <sp-progress-circle indeterminate size="l"></sp-progress-circle>
+                    <span style="color: #fff; 
+                                font-size: 18px; 
+                                font-weight: bold; 
+                                margin-top: 12px;
+                                text-align: center;">GENERATING...</span>
+                </div>
+            ` : ''}
+                -->
         `;
     }
 
@@ -613,6 +641,15 @@ export class Editor extends MobxLitElement {
             } else if (matchesShortcut(event, "shift+Tab")) {
                 store.tabPrevious();
                 this.requestUpdate();
+            } else if (/^[a-zA-Z]$/.test(key)) {
+                // Open the prompt input on the context menu when a letter key is pressed
+                const contextMenu = this.shadowRoot?.querySelector('app-context-menu') as any;
+                if (contextMenu && typeof contextMenu.handlePromptClick === 'function') {
+                    // Synthesize a MouseEvent-like object with preventDefault/stopPropagation
+                    const fakeEvent = { preventDefault: () => {}, stopPropagation: () => {} } as MouseEvent;
+                    contextMenu.handlePromptClick(fakeEvent);
+                }
+                handled = false;
             } else {
                 handled = false;
             }

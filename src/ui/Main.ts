@@ -29,7 +29,7 @@ export class Main extends MobxLitElement {
             height: 100vh;
             grid-template-areas: "header" "content";
             grid-template-rows: auto 1fr;
-            background-image: url('/images/canvas-grid.png');
+            background-image: url('images/canvas-grid.png');
             background-repeat: repeat;
             color: #2b2b2b;
             line-height: 1.5;

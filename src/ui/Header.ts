@@ -63,12 +63,12 @@ export class Header extends MobxLitElement {
     protected override render() {
         return html`
             <div id="app-header-left">
-                <img src="/images/logo.png" alt="Logo" width="234" height="45" />
+                <img src="images/logo.png" alt="Logo" width="234" height="45" />
             </div>
             <div id="app-header-center">
             </div>
             <div id="app-header-right">
-                <img src="/images/he-header-right.png" alt="Profile" width="220" height="36" />
+                <img src="images/he-header-right.png" alt="Profile" width="220" height="36" />
             </div>
         `;
     }

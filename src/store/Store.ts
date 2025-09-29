@@ -66,6 +66,13 @@ export class Store {
                     const personOld = this.shapes.find(shape => shape.id === "person-old") as Shape;
                     const boyRight = this.shapes.find(shape => shape.id === "boy-right") as Shape;
 
+                    const generating = this.shapes.find(shape => shape.id === "generating") as Photo;
+
+                    if (generating) {
+                        generating.x = artwork1Position.x;
+                        generating.y = artwork1Position.y;
+                    }
+
                     if (personBoy) {
                         personBoy.x = artwork1Position.x + 105;
                         personBoy.y = artwork1Position.y + 605;
@@ -1008,7 +1015,25 @@ export class Store {
 
 
         
-
+        new Photo(PhotoId.Image, {
+            id: "generating",
+            label: "Generating",
+            isFirstLevel: true,
+            x: 100,
+            y: -50,
+            rotation: 0,
+            width: 1002,
+            height: 975,
+            scale: 1.0,
+            fill: "white",
+            strokeWidth: 0,
+            src: "images/he-generating.jpg",
+            opacity: 0.9,
+            zindex: 99,
+            visible: false,
+            pathData:
+            "M0,0 L1002,0 L1002,975 L0,975 Z",
+        }),
 
         
 
@@ -1578,6 +1603,20 @@ export class Store {
                     break;
             }
         }
+
+        if (!this.showAlertDialog) {
+            
+            this.showIsGenerating = true;
+            this.generating.visible = true;
+            
+            // Start timer to trigger after 1.5 seconds
+            setTimeout(() => {
+                console.log("Timer triggered after 1.5 seconds");
+                // Add your timer logic here
+                this.showIsGenerating = false;
+                this.generating.visible = false;
+            }, 1500);
+        }
     }
 
 
@@ -1594,6 +1633,10 @@ export class Store {
     public showLoupe = false;
     public loupeColor = "#000";
     public loupeImg = "";
+    public showIsGenerating = false;
+    public artwork1 = this.shapes.find(shape => shape.id === "artwork1") as Photo;
+    public generating = this.shapes.find(shape => shape.id === "generating") as Photo;
+    public showPromptInput = false;
 
     public currentObject = "";
     public currentProperty = "";

@@ -172,9 +172,6 @@ export class ContextMenu extends MobxLitElement {
     //private dragFromPosition: 'left' | 'right' = 'right';
     private currentScrollTop = 0;
     
-    @property({ type: Boolean })
-    private showPromptInput = false;
-    
     private originalConnections: Array<string> = [];
     private isFiltering = false;
     
@@ -213,8 +210,8 @@ export class ContextMenu extends MobxLitElement {
         }
 
         // Close prompt input if open
-        if (this.showPromptInput) {
-            this.showPromptInput = false;
+        if (store.showPromptInput) {
+            store.showPromptInput = false;
             // Restore original connections if filtering
             if (this.originalConnections.length > 0) {
                 store.currentConnections = this.originalConnections;
@@ -241,7 +238,7 @@ export class ContextMenu extends MobxLitElement {
         // Calculate rotation based on scroll position
         // Each 40px of scroll = 36 degrees of rotation (10 items = 360 degrees)
         const itemHeight = 40;
-        const degreesPerItem = 90 / (store.currentConnections.length - 4) * (-1); // 360 / 10 items
+        const degreesPerItem = 80 / (store.currentConnections.length - 2) * (-1); // 360 / 10 items
         const rotation = (scrollTop / itemHeight) * degreesPerItem + 35;
         
         if (rotation) {
@@ -263,7 +260,7 @@ export class ContextMenu extends MobxLitElement {
                 display: inline-block;
                 overflow-x: visible;">
 
-                ${this.showPromptInput ? html`
+                ${store.showPromptInput ? html`
                     <input type="text" 
                         placeholder="find properties or type anything..." 
                         style="position: absolute;
@@ -284,7 +281,7 @@ export class ContextMenu extends MobxLitElement {
                         @input=${this.handleInputChange}>
                     ` : html``}
 
-                <img src="images/he-button-prompt.png" alt="PromptButton"
+                <img src="images/he-button-filter.png" alt="PromptButton"
                               style="position: absolute;
                               top: 80px;
                               left: -70px;
@@ -331,7 +328,7 @@ export class ContextMenu extends MobxLitElement {
                             cy="200" 
                             r="8" 
                             fill="white"
-                            opacity="0.0"
+                            opacity="1.0"
                             transform="rotate(${this.getCircleRotation()} 260 200)"/>
                 </svg>
                 
@@ -417,9 +414,9 @@ export class ContextMenu extends MobxLitElement {
                                     </sp-button>
                                     <img src="images/he-icon-eyedrop.png" alt="background" 
                                     style="position: relative; 
-                                            width: 24px; 
-                                            height: 24px;
-                                            margin-top: 4px;
+                                            width: 32px; 
+                                            height: 32px;
+                                            margin-top: 0px;
                                             cursor: pointer;"
                                         @click=${(e: Event) => this.handleEyedropperClick(e, connectionLabel)} >
                                     ` : html`<div style="width: 32px; height: 32px;"></div>`}
@@ -679,13 +676,22 @@ export class ContextMenu extends MobxLitElement {
         
     };
 
-    private handlePromptClick = (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+    public handlePromptClick = (e?: Event) => {
+        // Determine if invoked by real mouse interaction or programmatically
+        const isMouseEvent = !!(e && (e instanceof MouseEvent || 'clientX' in e));
 
-        this.showPromptInput = !this.showPromptInput;
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
-        if (this.showPromptInput) {
+        if (isMouseEvent) {
+            store.showPromptInput = !store.showPromptInput;
+        } else {
+            store.showPromptInput = true;
+        }
+
+        if (store.showPromptInput) {
             // Focus the input after it's rendered
             this.updateComplete.then(() => {
                 const input = this.shadowRoot?.querySelector('input[type="text"]') as HTMLInputElement;
@@ -695,11 +701,12 @@ export class ContextMenu extends MobxLitElement {
             });
         }
 
-        if (this.originalConnections.length != 0) {
+        if (this.originalConnections.length != 0 && !store.showPromptInput) {
             store.currentConnections = this.originalConnections
         }
 
-        //store.contextMenuVisibility = false;
+        // Optional branch if coming from keyboard/other component
+        // if (!isMouseEvent) { /* add extra behavior if needed */ }
     };
 
     private handleInputChange = (e: Event) => {
