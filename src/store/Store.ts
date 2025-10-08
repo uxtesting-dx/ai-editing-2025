@@ -735,7 +735,7 @@ export class Store {
             width: 1002,
             height: 858,
             scale: 1.0,
-            fill: "white",
+            fill: "#ffcccc",
             strokeWidth: 0,
             zindex: 111,
             opacity: 0.9,

@@ -25,8 +25,8 @@ import { Photo } from "../store/Photo";
 export class HeliosProperties extends MobxLitElement {
     editor: Editor;
 
-    @property({ type: Boolean })
-    private isPantone = false;
+    // @property({ type: Boolean })
+    // private isPantone = false;
     
     constructor(editor: Editor) {
         super();
@@ -122,7 +122,7 @@ export class HeliosProperties extends MobxLitElement {
             align-items: left;
             justify-content: left;
             position: absolute;
-            top: 148px;
+            top: 162px;
             left: 20px;
             width: 200px;
             height: auto;
@@ -306,8 +306,8 @@ export class HeliosProperties extends MobxLitElement {
 
                 <div class="prop-panel">
 
-                    <input type="text" 
-                        placeholder="what would you like to change?" 
+                    <input type="text" disabled="true"
+                        placeholder="enter prompt here (optional)"
                         style="position: absolute;
                                 top: 28px;
                                 left: 12px;
@@ -321,19 +321,19 @@ export class HeliosProperties extends MobxLitElement {
                                 font-size: 14px;
                                 font-family: system-ui, -apple-system, sans-serif;
                                 outline: none;
+                                opacity: 0.6;
                                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                                 animation: expandWidth 0.15s ease-out forwards;"
                         @input=${this.handlePromptInputChange}/>
 
-                    <img src="images/he-button-prompt.png" alt="PromptButton"
+                    <img src="images/he-button-prompt-disabled.png" alt="PromptButton"
                               style="position: absolute;
                               top: 30px;
                               left: 245px;
                               width: 38px; 
                               height: 38px;
                               border-radius: 24px;
-                              opacity: 1.0;
-                              cursor: pointer;">
+                              opacity: 1.0;">
 
 
                 ${store.typeOfProperty === "color" ? html`
@@ -343,14 +343,14 @@ export class HeliosProperties extends MobxLitElement {
                                 align-items: left;
                                 position: absolute;
                                 top: 84px;
-                                left: 17px;
-                                width: 256px;
-                                height: 46px;
+                                left: 15px;
+                                width: 260px;
+                                height: 50px;
                                 justify-content: left;
                                 gap: 12px;
-                                background-color: #dddddd;
+                                background-color: #cccccc;
                                 border-radius: 6px;
-                                padding: 4px;
+                                padding: 6px;
                                 ">
 
                         ${store.currentColorReference === "" ? html`
@@ -358,6 +358,7 @@ export class HeliosProperties extends MobxLitElement {
                                 width: 48px; 
                                 height: 48px;
                                 opacity: 1.0;
+                                margin-top: 2px;
                                 cursor: pointer;"
                                 src="images/he-icon-addref.png" alt="add reference"
                                 @click=${() => store.showBrowseImagesPanel = true}>
@@ -368,7 +369,7 @@ export class HeliosProperties extends MobxLitElement {
                                 font-weight: 600;
                                 color: #666666;
                                 left: 90px;
-                                margin-top: 3px;"
+                                margin-top: 6px;"
                                 >Add your own<br>reference images.</span>
                             ` : 
                             html`
@@ -576,8 +577,9 @@ export class HeliosProperties extends MobxLitElement {
                                         top: 160px;
                                         left: 20px;
                                         width: 230px;
-                                        height: auto;
-                                        "></sp-slider>
+                                        height: auto;"
+                                        @input=${this.handleAgeSliderChange}
+                                        @change=${this.handleAgeSliderChange}></sp-slider>
                     ` : ""}
 
                 <div class="prop-header" @pointerdown=${this.onContainerDragStart} style="cursor: move;">
@@ -702,15 +704,15 @@ export class HeliosProperties extends MobxLitElement {
         document.removeEventListener('pointerup', this.onContainerDragEnd);
     };
 
-    private handlePromptInputChange = (e: Event) => {
-        const input = e.target as HTMLInputElement;
-        const value = input.value;
+    private handlePromptInputChange = () => {
+        //const input = e.target as HTMLInputElement;
+        //const value = input.value;
         
-        if (value.toLowerCase().includes("pantone")) {
-            this.isPantone = true;
-        } else {
-            this.isPantone = false;
-        }
+        // if (value.toLowerCase().includes("pantone")) {
+        //     this.isPantone = true;
+        // } else {
+        //     this.isPantone = false;
+        // }
         
         // Add your prompt input change logic here
         // For example, you could:
@@ -1122,39 +1124,39 @@ export class HeliosProperties extends MobxLitElement {
 
     }
 
-    private handlePantoneClick = (thumbnailNumber: number, event: Event) => {
-        event.stopPropagation();
-        event.preventDefault();
+    // private handlePantoneClick = (thumbnailNumber: number, event: Event) => {
+    //     event.stopPropagation();
+    //     event.preventDefault();
 
-        let color = "";
+    //     let color = "";
 
-        switch (thumbnailNumber) {
-            case 1:
-                color = "#a47864";
-                break;
-            case 2:
-                color = "#ffbe98";
-                break;
-            case 3:
-                color = "#bb2649";
-                break;
-        }
+    //     switch (thumbnailNumber) {
+    //         case 1:
+    //             color = "#a47864";
+    //             break;
+    //         case 2:
+    //             color = "#ffbe98";
+    //             break;
+    //         case 3:
+    //             color = "#bb2649";
+    //             break;
+    //     }
         
-        if (store.currentDownShape?.id === "wall-back") {
-            const wallColor = store.shapes.find(shape => shape.id === "wall-back-color") as Shape;
-            if (color && wallColor) {
-                wallColor.fill = color;
-            }
-        }
-        if (store.currentDownShape?.id === "ceiling") {
-            const ceilingColor = store.shapes.find(shape => shape.id === "ceiling-color") as Shape;
-            if (color && ceilingColor) {
-                ceilingColor.fill = color;
-            }
-        }
+    //     if (store.currentDownShape?.id === "wall-back") {
+    //         const wallColor = store.shapes.find(shape => shape.id === "wall-back-color") as Shape;
+    //         if (color && wallColor) {
+    //             wallColor.fill = color;
+    //         }
+    //     }
+    //     if (store.currentDownShape?.id === "ceiling") {
+    //         const ceilingColor = store.shapes.find(shape => shape.id === "ceiling-color") as Shape;
+    //         if (color && ceilingColor) {
+    //             ceilingColor.fill = color;
+    //         }
+    //     }
 
 
-    }
+    // }
 
 
     private handleReplaceObjectClick = (thumbnailNumber: number, event: Event) => {
@@ -1371,11 +1373,19 @@ export class HeliosProperties extends MobxLitElement {
         event.stopPropagation();
         event.preventDefault();
 
+        // Check if event was triggered by click or slider value changed
+        const isClickEvent = event.type === 'click' || event instanceof MouseEvent || event instanceof PointerEvent;
+        const isSliderEvent = event.type === 'input' || event.type === 'change';
+        
+        console.log('Event triggered by:', isClickEvent ? 'Click' : isSliderEvent ? 'Slider' : 'Other', 'Event type:', event.type);
+
         const clickedThumbnail = this.shadowRoot?.querySelector(`sp-thumbnail:nth-child(${thumbnailNumber})`);
         const ageSlider = this.shadowRoot?.querySelector("#age-slider") as any;
         if (clickedThumbnail) {
             clickedThumbnail.setAttribute('focused', '');
         }
+
+        
         
         const boy = store.shapes.find(shape => shape.id === "person-boy") as Shape;
         const man = store.shapes.find(shape => shape.id === "person-man") as Shape;
@@ -1390,7 +1400,7 @@ export class HeliosProperties extends MobxLitElement {
                     man.visible = false;
                     old.visible = false;
                 }
-                if (ageSlider) {
+                if (ageSlider && isClickEvent) {
                     ageSlider.value = 10;
                 }
                 break;
@@ -1401,7 +1411,7 @@ export class HeliosProperties extends MobxLitElement {
                     boy.visible = false;
                     old.visible = false;
                 }
-                if (ageSlider) {
+                if (ageSlider && isClickEvent) {
                     ageSlider.value = 30;
                 }
                 break;
@@ -1412,29 +1422,56 @@ export class HeliosProperties extends MobxLitElement {
                     boy.visible = false;
                     man.visible = false;
                 }
-                if (ageSlider) {
+                if (ageSlider && isClickEvent) {
                     ageSlider.value = 80;
                 }
                 break;
         }
 
-        store.selectedShapes = [];
-        store.currentOverShape = undefined;
-        store.lastSelectedShapes = store.selectedShapes;
-        store.isMarquee = false;
-        store.currentConnections = [];
-        store.currentShapes = [];
-        store.currentDownShape = undefined;
-        store.isDragging = false;
-        store.clearSelectedShapes();
-        store.shapes.map((shape) => {
-            shape.isSelected = false;
-            shape.isHovered = false;
-          });
-        this.editor.requestUpdate();
+        // store.selectedShapes = [];
+        // store.currentOverShape = undefined;
+        // store.lastSelectedShapes = store.selectedShapes;
+        // store.isMarquee = false;
+        // store.currentConnections = [];
+        // store.currentShapes = [];
+        // store.currentDownShape = undefined;
+        // store.isDragging = false;
+        // store.clearSelectedShapes();
+        // store.shapes.map((shape) => {
+        //     shape.isSelected = false;
+        //     shape.isHovered = false;
+        //   });
+        // this.editor.requestUpdate();
         
         return thumbnailNumber;
     }
+
+    private handleAgeSliderChange = (event: Event) => {
+        const slider = event.target as any;
+        const ageValue = slider.value;
+        
+        if (ageValue >= 80) {
+            this.handleThumbnailClick(3, event);
+        } else if (ageValue >= 30) {
+            this.handleThumbnailClick(2, event);
+        } else {
+            this.handleThumbnailClick(1, event);
+        }
+        
+        this.editor.requestUpdate();
+        
+        // You can add specific logic here based on the age value
+        // For example, update store properties or modify shapes based on age
+        
+        // Example: Update a store property if it exists
+        // store.currentAge = ageValue;
+        
+        // Example: Modify person shapes based on age
+        // const person = store.shapes.find(shape => shape.id.includes("person"));
+        // if (person) {
+        //     // Apply age-related changes to the person shape
+        // }
+    };
     
     
 }

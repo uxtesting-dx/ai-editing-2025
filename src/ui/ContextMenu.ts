@@ -329,9 +329,10 @@ export class ContextMenu extends MobxLitElement {
         // Calculate dynamic scroll sensitivity based on circle movement range
         const itemHeight = 40;
         const containerHeight = 200; // Fixed container height
-        const totalItems = store.currentConnections.length * 1.8;
-        const maxScrollTop = Math.max(0, (totalItems * itemHeight) - containerHeight);
-        
+        const totalItems = store.currentConnections.length;
+        const maxScrollTop = Math.max(0, (totalItems * 1.8 * itemHeight) - containerHeight);
+
+      
         // Circle moves along an arc with radius 200px, so the vertical range is roughly 400px
         const circleVerticalRange = 400; // Approximate vertical range of circle movement
         const scrollSensitivity = maxScrollTop > 0 ? maxScrollTop / circleVerticalRange : 0;
@@ -345,12 +346,16 @@ export class ContextMenu extends MobxLitElement {
         // maxScrollTop is already calculated above
         
         // Ensure scroll doesn't go negative or exceed maximum
-        const finalScrollTop = Math.max(0, Math.min(quantizedScrollTop, maxScrollTop));
+        let finalScrollTop = Math.max(0, Math.min(quantizedScrollTop, maxScrollTop));
+
+        if (finalScrollTop > ((totalItems - 5) * itemHeight)) {
+            finalScrollTop = ((totalItems - 5) * itemHeight);
+        }
         
         // Apply scroll to container
         const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
         if (container) {
-            container.scrollTo({ top: finalScrollTop, behavior: 'instant' });
+            container.scrollTo({ top: finalScrollTop, behavior: 'smooth' });
             this.currentScrollTop = finalScrollTop;
         }
         
@@ -914,30 +919,30 @@ export class ContextMenu extends MobxLitElement {
 
     };
 
-    private handleWheel = (e: WheelEvent) => {
-        e.preventDefault();
+    // private handleWheel = (e: WheelEvent) => {
+    //     e.preventDefault();
         
         
-        const target = e.currentTarget as HTMLElement;
-        if (target) {
-            const heightItem = 40;
-            const currentScrollTop = target.scrollTop;
-            let newScrollTop = currentScrollTop + (heightItem * ( Math.abs(e.deltaY) / e.deltaY )); 
+    //     const target = e.currentTarget as HTMLElement;
+    //     if (target) {
+    //         const heightItem = 40;
+    //         const currentScrollTop = target.scrollTop;
+    //         let newScrollTop = currentScrollTop + (heightItem * ( Math.abs(e.deltaY) / e.deltaY )); 
 
-            newScrollTop = Math.floor(newScrollTop / heightItem) * heightItem;
+    //         newScrollTop = Math.floor(newScrollTop / heightItem) * heightItem;
 
 
-            this.currentScrollTop = (newScrollTop > 0) ? newScrollTop : 0;
+    //         this.currentScrollTop = (newScrollTop > 0) ? newScrollTop : 0;
             
-            target.scrollTo({
-                top: newScrollTop,
-                behavior: 'smooth'
-            });
+    //         target.scrollTo({
+    //             top: newScrollTop,
+    //             behavior: 'smooth'
+    //         });
             
-            // Trigger re-render to update arc positions
-            this.requestUpdate();
-        }
-    };
+    //         // Trigger re-render to update arc positions
+    //         this.requestUpdate();
+    //     }
+    // };
 
 
     private handleEyedropperClick = (e: Event, connectionLabel: string) => {
@@ -1408,6 +1413,8 @@ export class ContextMenu extends MobxLitElement {
         newScrollTop = Math.floor(newScrollTop / heightItem) * heightItem;
 
         this.currentScrollTop = (newScrollTop > 0) ? newScrollTop : 0;
+
+        console.log("newScrollTop: ", newScrollTop);
         
         container.scrollTo({
             top: newScrollTop,

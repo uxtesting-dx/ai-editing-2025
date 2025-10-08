@@ -67,7 +67,7 @@ export class BrowseImagesPanel extends MobxLitElement {
         margin-top: 38px;
         gap: 16px;
         overflow-y: auto;
-        height: calc(100% - 100px);
+        height: calc(100% - 130px);
       }
 
     #image-thumbnail {
