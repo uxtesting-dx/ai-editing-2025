@@ -1137,7 +1137,12 @@ export abstract class ToolBase {
           case "wall-back":
             store.currentConnections.push("");
             store.currentConnections.push("");
+            store.currentConnections.push("artist wallpaper");
+            store.currentConnections.push("artistic style");
+            store.currentConnections.push("brilliancy");
             store.currentConnections.push("color");
+            store.currentConnections.push("interior style");
+            store.currentConnections.push("lighting");
             store.currentConnections.push("material");
             store.currentConnections.push("");
             store.currentConnections.push("");
@@ -1158,6 +1163,7 @@ export abstract class ToolBase {
             store.currentConnections.push("replace object");
             store.currentConnections.push("color");
             store.currentConnections.push("material");
+            store.currentConnections.push("style");
             store.currentConnections.push("");
             store.currentConnections.push("");
             break;

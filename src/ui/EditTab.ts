@@ -44,6 +44,7 @@ export class EditTab extends MobxLitElement {
     private renderPropertiesPanel = () => {
         return html`<app-properties-panel></app-properties-panel>`;
     };
+
 }
 
 // See https://lit.dev/docs/components/defining/#typescript-typings

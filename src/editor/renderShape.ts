@@ -112,10 +112,10 @@ shape: Shape | Photo, handlePointerOver?: (e: PointerEvent) => void, handlePoint
                         transform="translate(${x},${y}) rotate(${rotation})"
                         >
                     <rect
-                        x="-20"
-                        y="-20"
-                        width=${width + 40}
-                        height=${height + 40}
+                        x="0"
+                        y="0"
+                        width=${width}
+                        height=${height}
                         rx="30"
                         ry="30"
                         transform="scale(${scale})"
@@ -167,10 +167,10 @@ shape: Shape | Photo, handlePointerOver?: (e: PointerEvent) => void, handlePoint
                     
 
                     <rect
-                        x="-20"
-                        y="-20"
-                        width=${width + 40}
-                        height=${height + 40}
+                        x="0"
+                        y="0"
+                        width=${width}
+                        height=${height}
                         rx="30"
                         ry="30"
                         transform="scale(${scale})"
@@ -184,10 +184,10 @@ shape: Shape | Photo, handlePointerOver?: (e: PointerEvent) => void, handlePoint
                     ></rect>
 
                     <rect
-                        x="-20"
-                        y="-20"
-                        width=${width + 40}
-                        height=${height + 40}
+                        x="0"
+                        y="0"
+                        width=${width}
+                        height=${height}
                         rx="30"
                         ry="30"
                         transform="scale(${scale})"

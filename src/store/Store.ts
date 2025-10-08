@@ -508,6 +508,7 @@ export class Store {
         return this._showPropertiesPanel;
     }
 
+
     public togglePropertiesPanel() {
         this._showPropertiesPanel = !this._showPropertiesPanel;
     }
@@ -673,7 +674,7 @@ export class Store {
             id: "artwork1",
             label: "Artwork1",
             isFirstLevel: true,
-            x: 100,
+            x: 200,
             y: -50,
             rotation: 0,
             width: 1002,
@@ -691,7 +692,7 @@ export class Store {
             id: "ceiling-color",
             label: "Ceiling Color",
             isFirstLevel: true,
-            x: 115,
+            x: 215,
             y: -51,
             rotation: 0,
             width: 1002,
@@ -709,7 +710,7 @@ export class Store {
             id: "ceiling",
             label: "Ceiling",
             isFirstLevel: true,
-            x: 116,
+            x: 216,
             y: -50,
             rotation: 0,
             width: 973,
@@ -728,7 +729,7 @@ export class Store {
             id: "wall-back-color",
             label: "Wall Back Color",
             isFirstLevel: true,
-            x: 101,
+            x: 201,
             y: -51,
             rotation: 0,
             width: 1002,
@@ -746,7 +747,7 @@ export class Store {
             id: "wall-back",
             label: "Wall Back",
             isFirstLevel: true,
-            x: 100,
+            x: 200,
             y: -51,
             rotation: 0,
             width: 1002,
@@ -765,7 +766,7 @@ export class Store {
             id: "wall-back2",
             label: "Wall Back2",
             isFirstLevel: true,
-            x: 5300,
+            x: 5400,
             y: -51,
             rotation: 0,
             width: 1002,
@@ -785,7 +786,7 @@ export class Store {
             id: "wall-back3",
             label: "Wall Back3",
             isFirstLevel: true,
-            x: 5100,
+            x: 5200,
             y: -51,
             rotation: 0,
             width: 1002,
@@ -802,10 +803,30 @@ export class Store {
 
 
         new Shape(ShapeId.Image, {
+            id: "wall-back4",
+            label: "Wall Back4",
+            isFirstLevel: true,
+            x: 5200,
+            y: -51,
+            rotation: 0,
+            width: 1002,
+            height: 858,
+            scale: 1.0,
+            fill: "white",
+            strokeWidth: 0,
+            src: "images/he-room-wall-back-green.png",
+            zindex: 115,
+            visible: false,
+            pathData:
+            "M15.04,0H0v859.11l193.16-134.63h603.72l203.54,134.63V0h-13.27l-182.56,195.03H193.16L15.04,0Z",
+        }),
+
+
+        new Shape(ShapeId.Image, {
             id: "ceiling-material",
             label: "Ceiling Material",
             isFirstLevel: true,
-            x: 5316,
+            x: 5416,
             y: -43,
             rotation: 0,
             width: 971,
@@ -824,7 +845,7 @@ export class Store {
             id: "sofa-back",
             label: "Sofa Back",
             isFirstLevel: true,
-            x: 5530,
+            x: 5630,
             y: 535,
             rotation: 0,
             width: 554,
@@ -843,7 +864,7 @@ export class Store {
             id: "sofa",
             label: "Sofa",
             isFirstLevel: true,
-            x: 730,
+            x: 830,
             y: 560,
             rotation: 0,
             width: 376,
@@ -864,7 +885,7 @@ export class Store {
             id: "sofa-color",
             label: "Sofa Color",
             isFirstLevel: true,
-            x: 5730,
+            x: 5830,
             y: 566,
             rotation: 0,
             width: 404,
@@ -884,7 +905,7 @@ export class Store {
             id: "sofa-material",
             label: "Sofa Material",
             isFirstLevel: true,
-            x: 5720,
+            x: 5820,
             y: 560,
             rotation: 0,
             width: 399,
@@ -922,7 +943,7 @@ export class Store {
             id: "sofa2",
             label: "Sofa2",
             isFirstLevel: true,
-            x: 5720,
+            x: 5820,
             y: 620,
             rotation: 0,
             width: 501,
@@ -941,7 +962,7 @@ export class Store {
             id: "person-boy",
             label: "Person Boy",
             isFirstLevel: true,
-            x: 205,
+            x: 305,
             y: 555,
             rotation: 0,
             width: 271,
@@ -960,7 +981,7 @@ export class Store {
             id: "person-man",
             label: "Person Man",
             isFirstLevel: true,
-            x: 206,
+            x: 306,
             y: 526,
             rotation: 0,
             width: 308,
@@ -979,7 +1000,7 @@ export class Store {
             id: "person-old",
             label: "Person Old",
             isFirstLevel: true,
-            x: 194,
+            x: 294,
             y: 522,
             rotation: 0,
             width: 339,
@@ -994,24 +1015,24 @@ export class Store {
             "M0,0 339,0 339,362 L0,362Z",
         }),
 
-        new Shape(ShapeId.Image, {
-            id: "boy-right",
-            label: "Boy Right",
-            isFirstLevel: true,
-            x: 540,
-            y: 582,
-            rotation: 0,
-            width: 262,
-            height: 261,
-            scale: 1.0,
-            fill: "white",
-            strokeWidth: 0,
-            src: "images/he-boy-right.png",
-            zindex: 133,
-            visible: true,
-            pathData:
-            "M0,0 262,0 262,261 L0,261Z",
-        }),
+        // new Shape(ShapeId.Image, {
+        //     id: "boy-right",
+        //     label: "Boy Right",
+        //     isFirstLevel: true,
+        //     x: 640,
+        //     y: 582,
+        //     rotation: 0,
+        //     width: 262,
+        //     height: 261,
+        //     scale: 1.0,
+        //     fill: "white",
+        //     strokeWidth: 0,
+        //     src: "images/he-boy-right.png",
+        //     zindex: 133,
+        //     visible: true,
+        //     pathData:
+        //     "M0,0 262,0 262,261 L0,261Z",
+        // }),
 
 
         
@@ -1019,7 +1040,7 @@ export class Store {
             id: "generating",
             label: "Generating",
             isFirstLevel: true,
-            x: 100,
+            x: 200,
             y: -50,
             rotation: 0,
             width: 1002,
@@ -1037,146 +1058,130 @@ export class Store {
 
         
 
-
+        // ------------------------------------------------------------
         // PHOTO 2 with Bobois orange sofa
 
-        new Photo(PhotoId.Image, {
-            id: "artwork2",
-            label: "Artwork2",
-            isFirstLevel: true,
-            x: 860,
-            y: 160,
-            rotation: 0,
-            width: 456,
-            height: 418,
-            scale: 0.75,
-            fill: "white",
-            strokeWidth: 0,
-            src: "images/he-bubble-couch.jpg",
-            zindex: 199,
-            pathData:
-            "M0,0 L456,0 L456,418 L0,418 Z",
-        }),
-
-        new Shape(ShapeId.Image, {
-            id: "sofa-orange",
-            label: "Sofa Orange",
-            isFirstLevel: true,
-            x: 915,
-            y: 274,
-            rotation: 0,
-            width: 327,
-            height: 139,
-            scale: 0.75,
-            fill: "white",
-            strokeWidth: 0,
-            src: "images/he-room-orange-sofa.png",
-            zindex: 200,
-            pathData:
-            "M207.366.993h8.973c2.633-.568,4.993.84,7.5,1.186,4.263.588,4.2.957,7.752.03A7.826,7.826,0,0,1,233.985,2c6.213.365,12.121,1.6,16.862,6.051a6.522,6.522,0,0,0,5.185,1.888c9.258-.7,16.913,3.565,24.527,7.933a1.233,1.233,0,0,1,.372.293c2.811,3.675,6.983,5.118,10.953,7.108,5.331,2.671,10.616,5.7,13.651,11.331a6.563,6.563,0,0,0,2.986,2.237c7.162,3.593,10.681,8.368,13.573,16.423C323.327,58.7,324.9,62.029,326,65.529V80.422c-1.086,4.032-1.659,8.171-2.928,12.181-1.7,5.381-3.993,10.605-7.774,14.586-4.307,4.534-9.631,8.27-16.519,7.937a15.323,15.323,0,0,0-6.534,1.113,10.084,10.084,0,0,1-5.094.893c-2.47-.308-4.513,1.492-7.075,1.1a17.744,17.744,0,0,0-7.421.054,24.444,24.444,0,0,1-8.59.791c-1.578-.1-2.422,1.435-4.091,1.154-1.3-.219-2.971-.726-4.137.737-.144.18-.6.168-.913.154-5.545-.251-10.945,1.6-16.531,1.051-2.259-.22-4.958-.582-6.759.4-1.973,1.069-4.426-.671-5.891,1.519-.1.153-.634.019-.967.02-2.322.007-4.97-.688-6.884.2-2.477,1.143-4.789.563-7.153.756a64.059,64.059,0,0,1-6.971.029,29.585,29.585,0,0,0-10.7,1.831,2.066,2.066,0,0,1-.925.154c-4.093-.568-8.059.756-12.017,1.23-5.708.683-11.417.221-17.028.943-2.688.346-5.693.007-7.991,1.016-2.831,1.241-5.6-.043-8.116.87-4.494,1.633-9.051.788-13.565.857-5.308.082-10.545.316-15.613,2.047-3.615-.717-6.962,1.137-10.548,1.037-5.808-.164-11.744-.779-17.4.146-6.725,1.1-13.39.264-20.038.867-3.808.346-7.334-1.2-11.051-1.043a22.019,22.019,0,0,1-10.633-2c-4.338.7-7.69-2.389-11.7-3.038-2.576-.416-3.91-3.021-6.167-4.256a52.79,52.79,0,0,1-5.891-3.793c-2.439-1.8-3.963-4.448-5.5-7.1-2.713-4.682-4.5-9.724-6.526-14.684A102.92,102.92,0,0,1,6.929,83.546C6.365,81,5.434,78.53,4.793,75.975c-.887-3.534-1.821-6.981-1.805-10.64.013-2.977.458-6.048-.138-8.9a25.539,25.539,0,0,1-.834-7.059A30.341,30.341,0,0,1,9.265,31.057c4.749-5.425,10.783-9.523,15.833-14.691,3.1-3.171,11.04-5.425,15.622-5.444,1.328-.005,2.657.02,3.985-.005,3.018-.055,5.828.009,8.739-1.825,3.338-2.1,15.9-2.809,19.5-2.153.8.147,1.276.8,2.043,1.089a9.168,9.168,0,0,0,7.991-.556,23.366,23.366,0,0,1,10.9-2.523c3.7.124,7.453-.334,11.05.994a3.034,3.034,0,0,0,.991.014h8.81c3.013-1.2,6.184-1.9,9.287-2.811a6.994,6.994,0,0,1,3.9-.1c3.119,1.026,6.523.826,9.507,2.28,2.037.993,3.766.606,5.838-.28a33.437,33.437,0,0,1,16.651-2.975,35.983,35.983,0,0,1,8.458,2.364,4.974,4.974,0,0,0,4.467-.192A31.662,31.662,0,0,1,186.425.91C188.146.888,189.389,2,190.995,2a9.965,9.965,0,0,1,4.131.844c1.935.825,4.134,1.341,6.435-.318a7.986,7.986,0,0,1,5.8-1.528z",
-
-        }),
-
-
-        // PHOTO 3 with fluffy texture
-
-        new Photo(PhotoId.Image, {
-            id: "artwork3",
-            label: "Artwork3",
-            isFirstLevel: true,
-            x: 1160,
-            y: 320,
-            rotation: 0,
-            width: 500,
-            height: 469,
-            scale: 0.6,
-            fill: "white",
-            strokeWidth: 0,
-            src: "images/he-text-fluffy.png",
-            zindex: 199,
-            pathData:
-            "M0,0 500,0 L500,469 L0,469 Z",
-        }),
-
-
-       new Shape(ShapeId.Image, {
-            id: "fluffy-texture",
-            label: "Fluffy Texture",
-            isFirstLevel: true,
-            x: 1177,
-            y: 340,
-            rotation: 0,
-            width: 443,
-            height: 408,
-            scale: 0.6,
-            fill: "white",
-            strokeWidth: 0,
-            src: "images/he-fluffy-obj.jpg",
-            zindex: 200,
-            visible: true,
-            pathData:
-            "M0,0 443,0 443,408 L0,408 Z",
-        }),
-
-
-        // PHOTO 4 with fluffy texture
-
-        new Photo(PhotoId.Image, {
-            id: "artwork4",
-            label: "Artwork4",
-            isFirstLevel: true,
-            x: 1160,
-            y: 650,
-            rotation: 0,
-            width: 421,
-            height: 385,
-            scale: 0.5,
-            fill: "white",
-            strokeWidth: 0,
-            src: "images/he-old-woman.jpg",
-            zindex: 400,
-            pathData:
-            "M0,0 421,0 421,385 L0,385 Z",
-        }),
-
-        new Shape(ShapeId.Image, {
-            id: "old-woman",
-            label: "Old Woman",
-            isFirstLevel: true,
-            x: 1165,
-            y: 655,
-            rotation: 0,
-            width: 421,
-            height: 385,
-            scale: 0.48,
-            fill: "white",
-            strokeWidth: 0,
-            src: "images/he-old-woman.jpg",
-            zindex: 400,
-            pathData:
-            "M0,0 421,0 421,385 L0,385 Z",
-        }),
-
+        // new Photo(PhotoId.Image, {
+        //     id: "artwork2",
+        //     label: "Artwork2",
+        //     isFirstLevel: true,
+        //     x: 860,
+        //     y: 160,
+        //     rotation: 0,
+        //     width: 456,
+        //     height: 418,
+        //     scale: 0.75,
+        //     fill: "white",
+        //     strokeWidth: 0,
+        //     src: "images/he-bubble-couch.jpg",
+        //     zindex: 199,
+        //     pathData:
+        //     "M0,0 L456,0 L456,418 L0,418 Z",
+        // }),
 
         // new Shape(ShapeId.Image, {
-        //     id: "sofa-gray",
-        //     label: "Sofa Gray",
+        //     id: "sofa-orange",
+        //     label: "Sofa Orange",
         //     isFirstLevel: true,
-        //     x: 5013,
-        //     y: 670,
+        //     x: 915,
+        //     y: 274,
         //     rotation: 0,
         //     width: 327,
         //     height: 139,
-        //     scale: 1.0,
+        //     scale: 0.75,
         //     fill: "white",
         //     strokeWidth: 0,
-        //     src: "images/he-room-gray-sofa.png",
-        //     zindex: 201,
-        //     visible: false,
+        //     src: "images/he-room-orange-sofa.png",
+        //     zindex: 200,
         //     pathData:
         //     "M207.366.993h8.973c2.633-.568,4.993.84,7.5,1.186,4.263.588,4.2.957,7.752.03A7.826,7.826,0,0,1,233.985,2c6.213.365,12.121,1.6,16.862,6.051a6.522,6.522,0,0,0,5.185,1.888c9.258-.7,16.913,3.565,24.527,7.933a1.233,1.233,0,0,1,.372.293c2.811,3.675,6.983,5.118,10.953,7.108,5.331,2.671,10.616,5.7,13.651,11.331a6.563,6.563,0,0,0,2.986,2.237c7.162,3.593,10.681,8.368,13.573,16.423C323.327,58.7,324.9,62.029,326,65.529V80.422c-1.086,4.032-1.659,8.171-2.928,12.181-1.7,5.381-3.993,10.605-7.774,14.586-4.307,4.534-9.631,8.27-16.519,7.937a15.323,15.323,0,0,0-6.534,1.113,10.084,10.084,0,0,1-5.094.893c-2.47-.308-4.513,1.492-7.075,1.1a17.744,17.744,0,0,0-7.421.054,24.444,24.444,0,0,1-8.59.791c-1.578-.1-2.422,1.435-4.091,1.154-1.3-.219-2.971-.726-4.137.737-.144.18-.6.168-.913.154-5.545-.251-10.945,1.6-16.531,1.051-2.259-.22-4.958-.582-6.759.4-1.973,1.069-4.426-.671-5.891,1.519-.1.153-.634.019-.967.02-2.322.007-4.97-.688-6.884.2-2.477,1.143-4.789.563-7.153.756a64.059,64.059,0,0,1-6.971.029,29.585,29.585,0,0,0-10.7,1.831,2.066,2.066,0,0,1-.925.154c-4.093-.568-8.059.756-12.017,1.23-5.708.683-11.417.221-17.028.943-2.688.346-5.693.007-7.991,1.016-2.831,1.241-5.6-.043-8.116.87-4.494,1.633-9.051.788-13.565.857-5.308.082-10.545.316-15.613,2.047-3.615-.717-6.962,1.137-10.548,1.037-5.808-.164-11.744-.779-17.4.146-6.725,1.1-13.39.264-20.038.867-3.808.346-7.334-1.2-11.051-1.043a22.019,22.019,0,0,1-10.633-2c-4.338.7-7.69-2.389-11.7-3.038-2.576-.416-3.91-3.021-6.167-4.256a52.79,52.79,0,0,1-5.891-3.793c-2.439-1.8-3.963-4.448-5.5-7.1-2.713-4.682-4.5-9.724-6.526-14.684A102.92,102.92,0,0,1,6.929,83.546C6.365,81,5.434,78.53,4.793,75.975c-.887-3.534-1.821-6.981-1.805-10.64.013-2.977.458-6.048-.138-8.9a25.539,25.539,0,0,1-.834-7.059A30.341,30.341,0,0,1,9.265,31.057c4.749-5.425,10.783-9.523,15.833-14.691,3.1-3.171,11.04-5.425,15.622-5.444,1.328-.005,2.657.02,3.985-.005,3.018-.055,5.828.009,8.739-1.825,3.338-2.1,15.9-2.809,19.5-2.153.8.147,1.276.8,2.043,1.089a9.168,9.168,0,0,0,7.991-.556,23.366,23.366,0,0,1,10.9-2.523c3.7.124,7.453-.334,11.05.994a3.034,3.034,0,0,0,.991.014h8.81c3.013-1.2,6.184-1.9,9.287-2.811a6.994,6.994,0,0,1,3.9-.1c3.119,1.026,6.523.826,9.507,2.28,2.037.993,3.766.606,5.838-.28a33.437,33.437,0,0,1,16.651-2.975,35.983,35.983,0,0,1,8.458,2.364,4.974,4.974,0,0,0,4.467-.192A31.662,31.662,0,0,1,186.425.91C188.146.888,189.389,2,190.995,2a9.965,9.965,0,0,1,4.131.844c1.935.825,4.134,1.341,6.435-.318a7.986,7.986,0,0,1,5.8-1.528z",
 
         // }),
+
+
+        // ------------------------------------------------------------
+        // PHOTO 3 with fluffy texture
+
+    //     new Photo(PhotoId.Image, {
+    //         id: "artwork3",
+    //         label: "Artwork3",
+    //         isFirstLevel: true,
+    //         x: 1160,
+    //         y: 320,
+    //         rotation: 0,
+    //         width: 500,
+    //         height: 469,
+    //         scale: 0.6,
+    //         fill: "white",
+    //         strokeWidth: 0,
+    //         src: "images/he-text-fluffy.png",
+    //         zindex: 199,
+    //         pathData:
+    //         "M0,0 500,0 L500,469 L0,469 Z",
+    //     }),
+
+
+    //    new Shape(ShapeId.Image, {
+    //         id: "fluffy-texture",
+    //         label: "Fluffy Texture",
+    //         isFirstLevel: true,
+    //         x: 1177,
+    //         y: 340,
+    //         rotation: 0,
+    //         width: 443,
+    //         height: 408,
+    //         scale: 0.6,
+    //         fill: "white",
+    //         strokeWidth: 0,
+    //         src: "images/he-fluffy-obj.jpg",
+    //         zindex: 200,
+    //         visible: true,
+    //         pathData:
+    //         "M0,0 443,0 443,408 L0,408 Z",
+    //     }),
+
+
+        // ------------------------------------------------------------
+        // PHOTO 4 with fluffy texture
+
+        // new Photo(PhotoId.Image, {
+        //     id: "artwork4",
+        //     label: "Artwork4",
+        //     isFirstLevel: true,
+        //     x: 1160,
+        //     y: 650,
+        //     rotation: 0,
+        //     width: 421,
+        //     height: 385,
+        //     scale: 0.5,
+        //     fill: "white",
+        //     strokeWidth: 0,
+        //     src: "images/he-old-woman.jpg",
+        //     zindex: 400,
+        //     pathData:
+        //     "M0,0 421,0 421,385 L0,385 Z",
+        // }),
+
+        // new Shape(ShapeId.Image, {
+        //     id: "old-woman",
+        //     label: "Old Woman",
+        //     isFirstLevel: true,
+        //     x: 1165,
+        //     y: 655,
+        //     rotation: 0,
+        //     width: 421,
+        //     height: 385,
+        //     scale: 0.48,
+        //     fill: "white",
+        //     strokeWidth: 0,
+        //     src: "images/he-old-woman.jpg",
+        //     zindex: 400,
+        //     pathData:
+        //     "M0,0 421,0 421,385 L0,385 Z",
+        // }),
+
+
+
 
         
 
@@ -1637,6 +1642,10 @@ export class Store {
     public artwork1 = this.shapes.find(shape => shape.id === "artwork1") as Photo;
     public generating = this.shapes.find(shape => shape.id === "generating") as Photo;
     public showPromptInput = false;
+    public showBrowseImagesPanel = false;
+    public currentColorReference = "";
+    public currentMaterialReference = "";
+    public extractedColors: string[] = [];
 
     public currentObject = "";
     public currentProperty = "";

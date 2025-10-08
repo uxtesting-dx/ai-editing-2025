@@ -8,7 +8,7 @@ import "@spectrum-web-components/icons-workflow/icons/sp-icon-chevron-right.js";
 
 import { MobxLitElement }   from "@adobe/lit-mobx";
 import { css, html }        from "lit";
-import { customElement, property }    from "lit/decorators.js";
+import { customElement }    from "lit/decorators.js";
 
 import { Shape } from "../store/Shape.js";
 import { Photo } from "../store/Photo.js";
@@ -172,9 +172,63 @@ export class ContextMenu extends MobxLitElement {
     //private dragFromPosition: 'left' | 'right' = 'right';
     private currentScrollTop = 0;
     
+    // Circle dragging properties for scroll control
+    private isCircleDragging = false;
+    private circleDragStartY = 0;
+    private initialScrollTop = 0;
+    
     private originalConnections: Array<string> = [];
     private isFiltering = false;
     
+    // Lifecycle methods
+    protected override firstUpdated(): void {
+        //super.firstUpdated();
+        // Add document-level wheel event listener
+        document.addEventListener('wheel', this.handleDocumentWheel, { passive: false });
+    }
+    
+    public override connectedCallback(): void {
+        super.connectedCallback();
+        // Add document-level wheel event listener if component is reconnected
+        document.addEventListener('wheel', this.handleDocumentWheel, { passive: false });
+    }
+    
+    public override disconnectedCallback(): void {
+        super.disconnectedCallback();
+        // Remove document-level wheel event listener
+        document.removeEventListener('wheel', this.handleDocumentWheel);
+    }
+    
+    // Public method that Editor can call to control scrolling
+    public setScrollTop = (scrollTop: number) => {
+        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
+        if (container) {
+            // Ensure scroll value is divisible by item height (40px) for proper alignment
+            const itemHeight = 40;
+            const quantizedScrollTop = Math.round(scrollTop / itemHeight) * itemHeight;
+            
+            container.scrollTo({ top: quantizedScrollTop, behavior: 'smooth' });
+            this.currentScrollTop = quantizedScrollTop;
+            
+            // Trigger re-render to update circle position and arc arrangement
+            this.requestUpdate();
+        }
+    };
+
+    // Public method to get current scroll position
+    public getScrollTop = (): number => {
+        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
+        return container?.scrollTop || this.currentScrollTop || 0;
+    };
+
+    // Public method to scroll by a relative amount
+    public scrollByAmount(deltaY: number): void {
+        const currentScroll = this.getScrollTop();
+        if (currentScroll + deltaY > -1) {
+            this.setScrollTop(currentScroll + deltaY);
+        }
+    }
+
     // Public method that Editor can call to handle ESCAPE
     public handleEscape = (event: KeyboardEvent): boolean => {
 
@@ -238,14 +292,81 @@ export class ContextMenu extends MobxLitElement {
         // Calculate rotation based on scroll position
         // Each 40px of scroll = 36 degrees of rotation (10 items = 360 degrees)
         const itemHeight = 40;
-        const degreesPerItem = 80 / (store.currentConnections.length - 2) * (-1); // 360 / 10 items
-        const rotation = (scrollTop / itemHeight) * degreesPerItem + 35;
+        const degreesPerItem = 80 / (store.currentConnections.length) * (-1); // 360 / 10 items
+        const rotation = (scrollTop / itemHeight) * degreesPerItem + 30;
         
         if (rotation) {
             return rotation;
         }
         return 0;
     }
+
+    private onCircleMouseDown = (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Start tracking mouse movement for scroll control
+        this.isCircleDragging = true;
+        this.circleDragStartY = e.clientY;
+        
+        // Get current scroll position
+        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
+        this.initialScrollTop = container?.scrollTop || this.currentScrollTop || 0;
+        
+        // Add global event listeners
+        document.addEventListener('mousemove', this.onCircleMouseMove);
+        document.addEventListener('mouseup', this.onCircleMouseUp);
+    };
+
+    private onCircleMouseMove = (e: MouseEvent) => {
+        if (!this.isCircleDragging) return;
+        
+        e.preventDefault();
+        
+        // Calculate vertical movement
+        const deltaY = e.clientY - this.circleDragStartY;
+        
+        // Calculate dynamic scroll sensitivity based on circle movement range
+        const itemHeight = 40;
+        const containerHeight = 200; // Fixed container height
+        const totalItems = store.currentConnections.length * 1.8;
+        const maxScrollTop = Math.max(0, (totalItems * itemHeight) - containerHeight);
+        
+        // Circle moves along an arc with radius 200px, so the vertical range is roughly 400px
+        const circleVerticalRange = 400; // Approximate vertical range of circle movement
+        const scrollSensitivity = maxScrollTop > 0 ? maxScrollTop / circleVerticalRange : 0;
+        
+        const newScrollTop = this.initialScrollTop + (deltaY * scrollSensitivity);
+        
+        // Ensure scroll value is divisible by item height (40px)
+        const quantizedScrollTop = Math.round(newScrollTop / itemHeight) * itemHeight;
+        
+        // Calculate maximum scroll based on number of items (reuse values from above)
+        // maxScrollTop is already calculated above
+        
+        // Ensure scroll doesn't go negative or exceed maximum
+        const finalScrollTop = Math.max(0, Math.min(quantizedScrollTop, maxScrollTop));
+        
+        // Apply scroll to container
+        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
+        if (container) {
+            container.scrollTo({ top: finalScrollTop, behavior: 'instant' });
+            this.currentScrollTop = finalScrollTop;
+        }
+        
+        // Trigger re-render to update circle position
+        this.requestUpdate();
+    };
+
+    private onCircleMouseUp = () => {
+        if (!this.isCircleDragging) return;
+        
+        this.isCircleDragging = false;
+        
+        // Remove global event listeners
+        document.removeEventListener('mousemove', this.onCircleMouseMove);
+        document.removeEventListener('mouseup', this.onCircleMouseUp);
+    };
 
     protected override render() {
         // TODO: Instead of using <input type="color">, we could create a Spectrum-styled color
@@ -288,8 +409,11 @@ export class ContextMenu extends MobxLitElement {
                               width: 40px; 
                               height: 40px;
                               border-radius: 24px;
-                              cursor: pointer;"
-                              @click=${this.handlePromptClick}>
+                              cursor: pointer;
+                              z-index: 1000;
+                              pointer-events: auto;"
+                              @click=${this.handlePromptClick}
+                                >
 
                 
 
@@ -302,7 +426,7 @@ export class ContextMenu extends MobxLitElement {
                            transform: translate(-50%, -50%); 
                            width: 400px; 
                            height: 400px; 
-                           pointer-events: none; 
+                           pointer-events: auto; 
                            z-index: 0;">
                     <defs>
                         <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -311,7 +435,7 @@ export class ContextMenu extends MobxLitElement {
                             <stop offset="100%" style="stop-color:#ff9d00;stop-opacity:0" />
                         </linearGradient>
                         <linearGradient id="circleFillGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:black;stop-opacity:0.1" />
+                            <stop offset="0%" style="stop-color:black;stop-opacity:0.25" />
                             <stop offset="20%" style="stop-color:black;stop-opacity:0" />
                             <stop offset="100%" style="stop-color:black;stop-opacity:0" />
                         </linearGradient>
@@ -321,15 +445,20 @@ export class ContextMenu extends MobxLitElement {
                             r="200" 
                             fill="url(#circleFillGradient)" 
                             stroke="url(#circleGradient)" 
-                            stroke-width="3"/>
+                            stroke-width="3"
+                            style="pointer-events: none;"/>
                     
                     <!-- Small white circle on the main circle's path -->
                     <circle cx="60" 
                             cy="200" 
                             r="8" 
                             fill="white"
+                            stroke="#ff9d00"
+                            stroke-width="3"
                             opacity="1.0"
-                            transform="rotate(${this.getCircleRotation()} 260 200)"/>
+                            style="cursor: pointer; pointer-events: auto;"
+                            transform="rotate(${this.getCircleRotation()} 260 200)"
+                            @mousedown=${this.onCircleMouseDown}/>
                 </svg>
                 
                 <div id="property-items-container" style="display: flex; 
@@ -344,18 +473,8 @@ export class ContextMenu extends MobxLitElement {
                         justify-content: flex-start; 
                         align-items: left;
                         align-content: left;
-                        margin-top: 4px;
-                        mask: linear-gradient(to bottom, 
-                               transparent 0%, 
-                               black 20%, 
-                               black 80%, 
-                               transparent 100%);
-                        -webkit-mask: linear-gradient(to bottom, 
-                                      transparent 0%, 
-                                      black 20%, 
-                                      black 80%, 
-                                      transparent 100%);"
-                                        @wheel=${this.handleWheel}>
+                        margin-top: 4px;"
+                        background-color:rgb(177, 35, 35);">
 
                     ${store.currentConnections.map((connectionLabel, index) => {
                         // Use tracked scrollTop value
@@ -374,9 +493,11 @@ export class ContextMenu extends MobxLitElement {
                         if (distanceFromCenter >= 0.5 && distanceFromCenter < 1.0) {
                             xOffset = 0; // 2nd and 5th items
                         } else if (distanceFromCenter >= 1.0 && distanceFromCenter < 2.0) {
-                            xOffset = 10; // 1st and 6th items
-                        } else if (distanceFromCenter >= 2.0) {
-                            xOffset = 25; // 7th+ items
+                            xOffset = 8; // 1st and 6th items
+                        } else if (distanceFromCenter >= 2.0 && distanceFromCenter < 3.0) {
+                            xOffset = 24; 
+                        } else if (distanceFromCenter >= 3.0) {
+                            xOffset = 40; 
                         }
                         
                         return html`
@@ -389,8 +510,10 @@ export class ContextMenu extends MobxLitElement {
                                     margin-bottom: 8px;
                                     width: 100%;
                                     overflow-x: visible;
-                                    transform: translateX(${xOffset}px);
-                                    transition: transform 0.15s ease;">
+                                    opacity: ${1.0 - xOffset/40};
+                                    transform: translateX(${xOffset}px) scale(${1.05 - xOffset/100});
+                                    transform-origin: left center;
+                                    transition: transform 0.1s ease;">
                                     <!--
                             ${store.isConnectionVisible ? html`
                                 <div  style="width:6px; 
@@ -406,12 +529,15 @@ export class ContextMenu extends MobxLitElement {
                                 ` : html``}
                                     -->
 
+                                    
                                 ${(connectionLabel != "") ? html`
                                     <sp-button @click=${() => this.onActionButtonClick(connectionLabel)} 
                                             style="border-radius: 24px;
                                                     --spectrum-button-m-accent-fill-texticon-border-color: #00000070;">
                                         ${connectionLabel}
                                     </sp-button>
+
+                                    <!--
                                     <img src="images/he-icon-eyedrop.png" alt="background" 
                                     style="position: relative; 
                                             width: 32px; 
@@ -419,7 +545,12 @@ export class ContextMenu extends MobxLitElement {
                                             margin-top: 0px;
                                             cursor: pointer;"
                                         @click=${(e: Event) => this.handleEyedropperClick(e, connectionLabel)} >
-                                    ` : html`<div style="width: 32px; height: 32px;"></div>`}
+                                        -->
+                                    ` 
+                                    :
+                                    html`
+                                        <div style="width: 32px; height: 32px;"></div>
+                                        `}
 
                                 
 
@@ -677,6 +808,7 @@ export class ContextMenu extends MobxLitElement {
     };
 
     public handlePromptClick = (e?: Event) => {
+        console.log("handlePromptClick", e);
         // Determine if invoked by real mouse interaction or programmatically
         const isMouseEvent = !!(e && (e instanceof MouseEvent || 'clientX' in e));
 
@@ -684,7 +816,7 @@ export class ContextMenu extends MobxLitElement {
             e.preventDefault();
             e.stopPropagation();
         }
-
+        console.log("handlePromptClick", isMouseEvent);
         if (isMouseEvent) {
             store.showPromptInput = !store.showPromptInput;
         } else {
@@ -1098,7 +1230,7 @@ export class ContextMenu extends MobxLitElement {
                         }
                         if (sofa2) {
                             sofa2.visible = true;
-                            sofa2.x = artwork1.x + 580;
+                            sofa2.x = artwork1.x + 680;
                             sofa2.y = artwork1.y + 650;
                         }
                         break;
@@ -1140,7 +1272,7 @@ export class ContextMenu extends MobxLitElement {
                             }
                             if (sofa2) {
                                 sofa2.visible = true;
-                                sofa2.x = artwork1.x + 580;
+                                sofa2.x = artwork1.x + 680;
                                 sofa2.y = artwork1.y + 650;
                             }
                             break;
@@ -1241,6 +1373,50 @@ export class ContextMenu extends MobxLitElement {
         
         
     }
+
+    private handleDocumentWheel = (e: WheelEvent) => {
+        // Check if the wheel event should be handled by this component
+        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
+        if (!container) return;
+        
+        // Check if the mouse is over the container or the component
+        const rect = container.getBoundingClientRect();
+        const isOverContainer = (
+            e.clientX >= rect.left &&
+            e.clientX <= rect.right &&
+            e.clientY >= rect.top &&
+            e.clientY <= rect.bottom
+        );
+        
+        // Also check if mouse is over the component itself
+        const componentRect = this.getBoundingClientRect();
+        const isOverComponent = (
+            e.clientX >= componentRect.left &&
+            e.clientX <= componentRect.right &&
+            e.clientY >= componentRect.top &&
+            e.clientY <= componentRect.bottom
+        );
+        
+        if (!isOverContainer && !isOverComponent) return;
+        
+        e.preventDefault();
+        
+        const heightItem = 40;
+        const currentScrollTop = container.scrollTop;
+        let newScrollTop = currentScrollTop + (heightItem * (Math.abs(e.deltaY) / e.deltaY)); 
+
+        newScrollTop = Math.floor(newScrollTop / heightItem) * heightItem;
+
+        this.currentScrollTop = (newScrollTop > 0) ? newScrollTop : 0;
+        
+        container.scrollTo({
+            top: newScrollTop,
+            behavior: 'smooth'
+        });
+        
+        // Trigger re-render to update arc positions
+        this.requestUpdate();
+    };
     
 }
 

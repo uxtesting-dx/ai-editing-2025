@@ -20,6 +20,7 @@ import { Shape, ShapeId } from "../store/Shape.js";
 import { Point2D, store, ToolId } from "../store/Store.js";
 import "../ui/ContextMenu.js";
 import "../ui/HeliosProperties.js";
+import "../ui/BrowseImagesPanel.js";
 import { HandTool } from "./HandTool.js";
 import { SelectTool } from "./SelectTool.js";
 import { ShapeCreationTool } from "./ShapeCreationTool.js";
@@ -338,7 +339,7 @@ export class Editor extends MobxLitElement {
 
     protected override render() {
         const rootTransform = `translate(${this.rootTranslate.x},${this.rootTranslate.y})`;
-        const { center, zoom, artboard } = store;
+        const { center, zoom } = store;
         const sceneTransform = `scale(${zoom}) translate(${-center.x},${-center.y})`;
 
         return html`
@@ -371,6 +372,19 @@ export class Editor extends MobxLitElement {
                         top: ${store.posContextMenu.y}px;
                         z-index: 1001;">
                     <app-helios-properties></app-helios-properties>
+                </div>
+            ` : ""}
+
+            ${store.showBrowseImagesPanel ? html`
+                <div id="browse-images-panel"
+                    style="
+                        position: absolute;
+                        width: calc(100%);
+                        height: calc(100%);
+                        left: 0px;
+                        top: 0px;
+                        z-index: 1010;">
+                    <app-browse-images-panel></app-browse-images-panel>
                 </div>
             ` : ""}
 
@@ -612,6 +626,7 @@ export class Editor extends MobxLitElement {
                 store.HeliosPropertiesVisibility = false;
                 store.isColorWheelVisible = false;
                 store.isEyedropping = false;
+                store.showBrowseImagesPanel = false;
                 //store.clearSelectedShapes();
             } else if (matchesShortcut(event, "cmd+A")) {
                 store.selectAll();
@@ -620,21 +635,43 @@ export class Editor extends MobxLitElement {
             } else if (matchesShortcut(event, "cmdOrCtrl+Space")) {
                 store.activeToolId = ToolId.Zoom;
             } else if (matchesShortcut(event, "shift+ArrowLeft")) {
-                store.moveBySelectedShapes(-10, 0);
+                //store.moveBySelectedShapes(-10, 0);
             } else if (matchesShortcut(event, "ArrowLeft")) {
-                store.moveBySelectedShapes(-1, 0);
+                //store.moveBySelectedShapes(-1, 0);
             } else if (matchesShortcut(event, "shift+ArrowRight")) {
-                store.moveBySelectedShapes(10, 0);
+                //store.moveBySelectedShapes(10, 0);
             } else if (matchesShortcut(event, "ArrowRight")) {
-                store.moveBySelectedShapes(1, 0);
+                //store.moveBySelectedShapes(1, 0);
             } else if (matchesShortcut(event, "shift+ArrowUp")) {
-                store.moveBySelectedShapes(0, -10);
+                //store.moveBySelectedShapes(0, -10);
             } else if (matchesShortcut(event, "ArrowUp")) {
-                store.moveBySelectedShapes(0, -1);
+                // Control ContextMenu scroll position when ArrowUp is pressed
+                const contextMenu = this.shadowRoot?.querySelector('app-context-menu') as any;
+                if (contextMenu && typeof contextMenu.scrollByAmount === 'function') {
+                    contextMenu.scrollByAmount(-40); // Scroll up by one item (40px)
+                }
+                //store.moveBySelectedShapes(0, -1);
             } else if (matchesShortcut(event, "shift+ArrowDown")) {
-                store.moveBySelectedShapes(0, +10);
+                //store.moveBySelectedShapes(0, +10);
             } else if (matchesShortcut(event, "ArrowDown")) {
-                store.moveBySelectedShapes(0, 1);
+                // Control ContextMenu scroll position when ArrowDown is pressed
+                const contextMenu = this.shadowRoot?.querySelector('app-context-menu') as any;
+                if (contextMenu && typeof contextMenu.scrollByAmount === 'function') {
+                    contextMenu.scrollByAmount(40); // Scroll down by one item (40px)
+                }
+                //store.moveBySelectedShapes(0, 1);
+            } else if (matchesShortcut(event, "PageUp")) {
+                // Control ContextMenu scroll position when PageUp is pressed
+                const contextMenu = this.shadowRoot?.querySelector('app-context-menu') as any;
+                if (contextMenu && typeof contextMenu.scrollByAmount === 'function') {
+                    contextMenu.scrollByAmount(-120); // Scroll up by 5 items (200px)
+                }
+            } else if (matchesShortcut(event, "PageDown")) {
+                // Control ContextMenu scroll position when PageDown is pressed
+                const contextMenu = this.shadowRoot?.querySelector('app-context-menu') as any;
+                if (contextMenu && typeof contextMenu.scrollByAmount === 'function') {
+                    contextMenu.scrollByAmount(120); // Scroll down by 5 items (200px)
+                }
             } else if (matchesShortcut(event, "Tab")) {
                 store.tabNext();
                 this.requestUpdate();
