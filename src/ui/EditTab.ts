@@ -33,9 +33,11 @@ export class EditTab extends MobxLitElement {
 
     protected override render() {
         return html`
+            <!-- 
             <div id="toolbar">
                 <img src="images/he-toolbar.png" />
             </div>
+            -->
             <app-editor tabindex="0"></app-editor>
             ${when(store.showPropertiesPanel, this.renderPropertiesPanel)}
         `;

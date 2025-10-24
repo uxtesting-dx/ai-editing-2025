@@ -627,6 +627,7 @@ export abstract class ToolBase {
       if (e.isPrimary && (e.pointerType !== "mouse" || e.buttons === 1)) {
         this.pointerId = e.pointerId;
         store.isDragging = true;
+        console.log("111");
         window.addEventListener("pointerup", this.handlePointerUp);
         window.addEventListener(
           "lostpointercapture",
@@ -672,7 +673,7 @@ export abstract class ToolBase {
 
       store.currentDownShape = shape;
       console.log("Store currentDownShape = " + store.currentDownShape?.id);
-      store.currentConnections = [ store.currentDownShape.id ];
+      //store.currentConnections = [ store.currentDownShape.id ];
 
       this.currentAdornerPressedId = "";
 
@@ -682,6 +683,7 @@ export abstract class ToolBase {
         this.pointerId = e.pointerId;
         store.isDragging = false;
         store.wasDragging = false;
+        console.log("222");
         window.addEventListener("pointerup", this.handlePointerUp);
         window.addEventListener(
           "lostpointercapture",
@@ -1097,6 +1099,8 @@ export abstract class ToolBase {
       store.isConnectionVisible = false;
     } else {
 
+
+
       if ((store.currentOverShape?.id !== "sofa-orange") && (store.currentOverShape?.id !== "fluffy-texture") && (store.currentOverShape?.id !== "old-woman")) {
 
         store.isConnectionVisible = true;
@@ -1107,91 +1111,31 @@ export abstract class ToolBase {
           case "person-old":
           case "boy-right":
           case "old-woman":
-            store.currentConnections.push("");
-            store.currentConnections.push("");
-            store.currentConnections.push("replace object");
-            store.currentConnections.push("age");
-            store.currentConnections.push("body posing");
-            store.currentConnections.push("body type");
-            store.currentConnections.push("clothes");
-            store.currentConnections.push("eye direction");
-            store.currentConnections.push("eye (red eye)");
-            store.currentConnections.push("expression");
-            store.currentConnections.push("face direction");
-            store.currentConnections.push("facial hair");
-            store.currentConnections.push("gender");
-            store.currentConnections.push("hair color");
-            store.currentConnections.push("hair style");
-            store.currentConnections.push("hair length");
-            store.currentConnections.push("hair texture");
-            store.currentConnections.push("hair volume");
-            store.currentConnections.push("hair density");
-            store.currentConnections.push("hair shine");
-            store.currentConnections.push("lips fullness");
-            store.currentConnections.push("nose type");
-            store.currentConnections.push("nose size");
-            store.currentConnections.push("");
-            store.currentConnections.push("");
+            store.menuPeople.forEach(item => {
+              store.currentConnections.push(item);
+            });
             break;
           case "ceiling":
           case "wall-back":
-            store.currentConnections.push("");
-            store.currentConnections.push("");
-            store.currentConnections.push("artist wallpaper");
-            store.currentConnections.push("artistic style");
-            store.currentConnections.push("brilliancy");
-            store.currentConnections.push("color");
-            store.currentConnections.push("interior style");
-            store.currentConnections.push("lighting");
-            store.currentConnections.push("material");
-            store.currentConnections.push("");
-            store.currentConnections.push("");
+            store.menuWalls.forEach(item => {
+              store.currentConnections.push(item);
+            });
             break;
           case "sofa-orange":
-            store.currentConnections.push("");
-            store.currentConnections.push("");
-            store.currentConnections.push("add object");
-            store.currentConnections.push("replace object");
-            store.currentConnections.push("color");
-            store.currentConnections.push("material");
-            store.currentConnections.push("");
-            store.currentConnections.push("");
+            store.menuObjects.forEach(item => {
+              store.currentConnections.push(item);
+            });
             break;
           default:
-            store.currentConnections.push("");
-            store.currentConnections.push("");
-            store.currentConnections.push("replace object");
-            store.currentConnections.push("color");
-            store.currentConnections.push("material");
-            store.currentConnections.push("style");
-            store.currentConnections.push("");
-            store.currentConnections.push("");
+            store.menuObjects.forEach(item => {
+              store.currentConnections.push(item);
+            });
             break;
         }
 
       }
     }
-    // const connection = store.currentDownShape?.id.toString() + "->" + store.overShape?.id.toString();
-    // store.currentShapes.push(store.currentDownShape?.id.toString() ?? "");
-    // store.currentShapes.push(store.overShape?.id.toString() ?? "");
-    // switch (connection) {
-    //   case "sofa-orange->sofa":
-    //     store.currentConnections.push("replace couch");
-    //     store.currentConnections.push("color");
-    //     store.currentConnections.push("material");
-    //     break;
-    //   case "sofa-orange->wall-back":
-    //     store.currentConnections.push("add couch");
-    //     store.currentConnections.push("color");
-    //     store.currentConnections.push("material");
-    //     break;
-    //   case "sofa-orange->sofa-material":
-    //     store.currentConnections.push("replace couch");
-    //     store.currentConnections.push("color");
-    //     break;
-    //   default:
-        //store.isConnectionVisible = false;
-    //}
+
 
     if (
       e.pointerId === this.pointerId &&

@@ -19,6 +19,7 @@ import { matchesShortcut } from "../components/matchesShortcut.js";
 import { Shape, ShapeId } from "../store/Shape.js";
 import { Point2D, store, ToolId } from "../store/Store.js";
 import "../ui/ContextMenu.js";
+import "../ui/ContextMenu2.js";
 import "../ui/HeliosProperties.js";
 import "../ui/BrowseImagesPanel.js";
 import { HandTool } from "./HandTool.js";
@@ -357,10 +358,10 @@ export class Editor extends MobxLitElement {
             ${store.contextMenuVisibility ? html`
                 <div id="helios-context-menu"
                     style="
-                        left: ${store.posContextMenu.x}px;
+                        left: ${store.posContextMenu.x - 200}px;
                         top: ${store.posContextMenu.y - 100}px;
                         z-index: 1000;">
-                    <app-context-menu></app-context-menu>
+                    <app-context-menu2></app-context-menu2>
                 </div>
             ` : ""}
 
@@ -680,7 +681,7 @@ export class Editor extends MobxLitElement {
                 this.requestUpdate();
             } else if (/^[a-zA-Z]$/.test(key)) {
                 // Open the prompt input on the context menu when a letter key is pressed
-                const contextMenu = this.shadowRoot?.querySelector('app-context-menu') as any;
+                const contextMenu = this.shadowRoot?.querySelector('app-context-menu2') as any;
                 if (contextMenu && typeof contextMenu.handlePromptClick === 'function') {
                     // Synthesize a MouseEvent-like object with preventDefault/stopPropagation
                     const fakeEvent = { preventDefault: () => {}, stopPropagation: () => {} } as MouseEvent;

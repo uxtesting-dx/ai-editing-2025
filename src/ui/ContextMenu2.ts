@@ -14,8 +14,17 @@ import { Shape } from "../store/Shape.js";
 import { Photo } from "../store/Photo.js";
 import { store } from "../store/Store.js";
 
-@customElement("app-context-menu")
-export class ContextMenu extends MobxLitElement {
+// Interface for item styling information
+interface ItemStyle {
+    xOffset: number;
+    opacity: number;
+    scale: number;
+    borderRadius: string;
+    hideText: boolean;
+}
+
+@customElement("app-context-menu2")
+export class ContextMenu2 extends MobxLitElement {
     static styles = css`
         :host {
             display: block;
@@ -155,12 +164,40 @@ export class ContextMenu extends MobxLitElement {
         @keyframes expandWidth {
             from {
                 width: 0px;
-                left: -70px;
             }
             to {
                 width: 110px;
-                left: -180px;
             }
+        }
+
+        /* Custom scrollbar styling for property-items-container */
+        #property-items-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #property-items-container::-webkit-scrollbar-track {
+            
+            border-radius: 8px;
+        }
+
+        #property-items-container::-webkit-scrollbar-track::before {
+            
+        }
+
+        #property-items-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            min-height: 10px;
+            max-height: 10px;
+            border-color: #00000070;
+            border-style: solid;
+            border-width: 1.5px;
+            border-color: #00000070;
+            height: 10px !important;
+        }
+
+        #property-items-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.8);
         }
     `;
 
@@ -185,18 +222,36 @@ export class ContextMenu extends MobxLitElement {
         //super.firstUpdated();
         // Add document-level wheel event listener
         document.addEventListener('wheel', this.handleDocumentWheel, { passive: false });
+        
+        // Add scroll listener to the property-items-container
+        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
+        if (container) {
+            container.addEventListener('scroll', this.handleContainerScroll);
+        }
     }
     
     public override connectedCallback(): void {
         super.connectedCallback();
         // Add document-level wheel event listener if component is reconnected
         document.addEventListener('wheel', this.handleDocumentWheel, { passive: false });
+        
+        // Add scroll listener to the property-items-container if component is reconnected
+        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
+        if (container) {
+            container.addEventListener('scroll', this.handleContainerScroll);
+        }
     }
     
     public override disconnectedCallback(): void {
         super.disconnectedCallback();
         // Remove document-level wheel event listener
         document.removeEventListener('wheel', this.handleDocumentWheel);
+        
+        // Remove scroll listener from the property-items-container
+        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
+        if (container) {
+            container.removeEventListener('scroll', this.handleContainerScroll);
+        }
     }
     
     // Public method that Editor can call to control scrolling
@@ -226,6 +281,91 @@ export class ContextMenu extends MobxLitElement {
         const currentScroll = this.getScrollTop();
         if (currentScroll + deltaY > -1) {
             this.setScrollTop(currentScroll + deltaY);
+        }
+    }
+
+    // Shared method to calculate item offset and styling based on scroll position and index
+    private calculateItemOffset(index: number, scrollTop: number = this.currentScrollTop): ItemStyle {
+        // Calculate virtual position based on scroll
+        const itemHeight = 24 + 14; // Approximate height including gap
+        const containerHeight = 290; // Container height
+        const visibleItems = containerHeight / itemHeight; // 10 items visible
+        const scrollOffset = Math.floor(scrollTop / itemHeight);
+        const virtualIndex = index - scrollOffset;
+        
+        // Calculate arc offset based on distance from center
+        //const centerPosition = (visibleItems - 1) / 2; // Center of visible area (5.0 for 10 items)
+        // const distanceFromCenter = Math.abs(virtualIndex - centerPosition); // Currently unused
+
+        // Default styling
+        let xOffset = 16;
+        let opacity = 1;
+        let scale = 1;
+        let borderRadius = '4px';
+        let hideText = false;
+
+        // Check if item is exiting the bottom of the container
+        const bottomThreshold = visibleItems - 1; // Items beyond this are exiting bottom
+        
+        console.log('virtualIndex:', (virtualIndex - 1) , ' scrollTop:', scrollTop / itemHeight);
+
+        if ((virtualIndex - 1) < 1) {
+            scale = 0.3;
+            opacity = 1.0;
+            borderRadius = '16px';
+            hideText = true;
+        }
+
+        if (virtualIndex > bottomThreshold) {
+            // Item is exiting bottom - animate to circle
+            const exitProgress = Math.min((virtualIndex - bottomThreshold) / 2, 1); // Progress from 0 to 1
+            
+            // Animate to circle
+            scale = 1 - (exitProgress * 0.7); // Shrink to 50% size
+            opacity = 1; // - (exitProgress * 0.85); // Fade to 30% opacity
+            borderRadius = `${4 + (exitProgress * 46)}px`; // Animate from 4px to 50px (circle)
+            hideText = exitProgress > 0.3; // Hide text when 30% through animation
+            
+            // Move item toward center as it becomes a circle
+            xOffset = 16 + (exitProgress * 20);
+        }
+
+        return {
+            xOffset,
+            opacity,
+            scale,
+            borderRadius,
+            hideText
+        };
+    }
+
+    // Scroll event handler for property-items-container
+    private handleContainerScroll = (event: Event): void => {
+        const container = event.target as HTMLElement;
+        if (container && container.id === 'property-items-container') {
+            this.currentScrollTop = container.scrollTop;
+            
+            // Update styling for all visible items
+            const items = this.shadowRoot?.querySelectorAll('#property-items-container > div');
+            if (items) {
+                items.forEach((item, index) => {
+                    const htmlItem = item as HTMLElement;
+                    const itemStyle = this.calculateItemOffset(index);
+
+                    // Apply all styling properties
+                    htmlItem.style.transform = `translateX(${itemStyle.xOffset}px) scale(${itemStyle.scale})`;
+                    htmlItem.style.opacity = itemStyle.opacity.toString();
+                    htmlItem.style.borderRadius = itemStyle.borderRadius;
+                    
+                    // Hide/show text content
+                    const textElements = htmlItem.querySelectorAll('span, div:not([style*="background"])');
+                    textElements.forEach(textEl => {
+                        (textEl as HTMLElement).style.opacity = itemStyle.hideText ? '0' : '1';
+                    });
+                });
+            }
+            
+            // Optional: Add any additional scroll handling logic here
         }
     }
 
@@ -284,39 +424,8 @@ export class ContextMenu extends MobxLitElement {
         return false; // Indicate that Editor should handle it
     }
 
-    private getCircleRotation(): number {
-        // Get current scrollTop from the container
-        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
-        const scrollTop = container?.scrollTop || this.currentScrollTop || 0;
-        
-        // Calculate rotation based on scroll position
-        // Each 40px of scroll = 36 degrees of rotation (10 items = 360 degrees)
-        const itemHeight = 40;
-        const degreesPerItem = 80 / (store.currentConnections.length) * (-1); // 360 / 10 items
-        const rotation = (scrollTop / itemHeight) * degreesPerItem + 30;
-        
-        if (rotation) {
-            return rotation;
-        }
-        return 0;
-    }
 
-    private onCircleMouseDown = (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Start tracking mouse movement for scroll control
-        this.isCircleDragging = true;
-        this.circleDragStartY = e.clientY;
-        
-        // Get current scroll position
-        const container = this.shadowRoot?.querySelector('#property-items-container') as HTMLElement;
-        this.initialScrollTop = container?.scrollTop || this.currentScrollTop || 0;
-        
-        // Add global event listeners
-        document.addEventListener('mousemove', this.onCircleMouseMove);
-        document.addEventListener('mouseup', this.onCircleMouseUp);
-    };
+
 
     private onCircleMouseMove = (e: MouseEvent) => {
         if (!this.isCircleDragging) return;
@@ -328,7 +437,7 @@ export class ContextMenu extends MobxLitElement {
         
         // Calculate dynamic scroll sensitivity based on circle movement range
         const itemHeight = 20;
-        const containerHeight = 200; // Fixed container height
+        const containerHeight = 300; // Fixed container height
         const totalItems = store.currentConnections.length;
         const maxScrollTop = Math.max(0, (totalItems * 1.8 * itemHeight) - containerHeight);
 
@@ -391,7 +500,7 @@ export class ContextMenu extends MobxLitElement {
                         placeholder="filter list..." 
                         style="position: absolute;
                                 top: 79px;
-                                left: -266px;
+                                left: 224px;
                                 width: 100px;
                                 height: 42px;
                                 padding: 0 21px;
@@ -410,7 +519,7 @@ export class ContextMenu extends MobxLitElement {
                 <img src="images/he-button-filter.png" alt="PromptButton"
                               style="position: absolute;
                               top: 80px;
-                              left: -70px;
+                              left: 200px;
                               width: 40px; 
                               height: 40px;
                               border-radius: 24px;
@@ -420,216 +529,66 @@ export class ContextMenu extends MobxLitElement {
                               @click=${this.handlePromptClick}
                                 >
 
-                
-
-                
-
-                <!-- SVG Circle Overlay -->
-                <svg style="position: absolute; 
-                           top: 50%; 
-                           left: 50%; 
-                           transform: translate(-50%, -50%); 
-                           width: 400px; 
-                           height: 400px; 
-                           pointer-events: auto; 
-                           z-index: 0;">
-                    <defs>
-                        <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#ff9d00;stop-opacity:1" />
-                            <stop offset="15%" style="stop-color:#ff9d00;stop-opacity:0" />
-                            <stop offset="100%" style="stop-color:#ff9d00;stop-opacity:0" />
-                        </linearGradient>
-                        <linearGradient id="circleFillGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:white;stop-opacity:0.95" />
-                            <stop offset="30%" style="stop-color:white;stop-opacity:0.0" />
-                            <stop offset="100%" style="stop-color:white;stop-opacity:0" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="260" 
-                            cy="200" 
-                            r="200" 
-                            fill="url(#circleFillGradient)" 
-                            stroke="url(#circleGradient)" 
-                            stroke-width="3"
-                            style="pointer-events: none;"/>
-                    
-                    <!-- Small white circle on the main circle's path 
-                    <circle cx="60" 
-                            cy="200" 
-                            r="8" 
-                            fill="white"
-                            stroke="#ff9d00"
-                            stroke-width="3"
-                            opacity="1.0"
-                            style="cursor: pointer; pointer-events: auto;"
-                            transform="rotate(${this.getCircleRotation()} 260 200)"
-                            cursor="pointer"
-                            @mousedown=${this.onCircleMouseDown}/>
-                            -->
-                </svg>
-
-                <!--
-                <div id="ellipsis-top" style="position: absolute;
-                            top: -20px;
-                            left: 44px;
-                            width: 24px;
-                            height: 6px;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            opacity: ${this.currentScrollTop > 40 ? 0.85 : 0};
-                            transition: opacity 0.25s ease;">
-                    <img src="images/he-icon-ellipsis.png" alt="ellipsis" style="width: 24px; height: 6px;">
-                </div>
-
-                <div id="ellipsis-bottom" style="position: absolute;
-                            top: 210px;
-                            left: 44px;
-                            width: 24px;
-                            height: 6px;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            opacity: ${this.currentScrollTop < (((store.currentConnections.length - 1) * 40) - 200) ? 0.85 : 0};
-                            transition: opacity 0.25s ease;">
-                    <img src="images/he-icon-ellipsis.png" alt="ellipsis" style="width: 24px; height: 6px;">
-                </div>
-
-                -->
+            
                 
                 <div id="property-items-container" style="display: flex; 
                         flex-direction: column; 
                         flex-flow: column;
-                        gap: 4px;
-                        width: 250px;
-                        height: 200px; 
+                        gap: 14px;
+                        width: 180px;
+                        height: 300px; 
                         overflow-x: hidden;
-                        overflow-y: hidden;
+                        overflow-y: auto;
                         padding: 0px; 
                         justify-content: flex-start; 
-                        align-items: left;
-                        align-content: left;
+                        align-items: right;
+                        align-content: right;
                         margin-top: 0px;
                         margin-left: 0px;
-                        mask: linear-gradient(to bottom, 
-                               transparent 0%, 
-                               black 20%, 
-                               black 80%, 
-                               transparent 0%);
-                        -webkit-mask: linear-gradient(to bottom, 
-                                      transparent 0%, 
-                                      black 20%, 
-                                      black 80%, 
-                                      transparent 100%);">
+                        /* Custom scrollbar styling */
+                        scrollbar-width: auto;
+                        ">
 
                     ${store.currentConnections.map((connectionLabel, index) => {
-                        // Use tracked scrollTop value
-                        const scrollTop = this.currentScrollTop;
+                        // Calculate styling using shared method
+                        const itemStyle = this.calculateItemOffset(index);
                         
-                        // Calculate virtual position based on scroll
-                        const itemHeight = 24; // Approximate height including gap
-                        const containerHeight = 200; // Container height
-                        const visibleItems = containerHeight / itemHeight; // 10 items visible
-                        const scrollOffset = Math.floor(scrollTop / itemHeight);
-                        const virtualIndex = (index) - scrollOffset;
-                        
-                        // Calculate arc offset based on distance from center
-                        const centerPosition = (visibleItems - 1) / 2; // Center of visible area (5.0 for 10 items)
-                        const distanceFromCenter = Math.abs(virtualIndex - centerPosition);
 
-                        let xOffset = 0;
-
-                        xOffset = distanceFromCenter * 7;
-                        
-                        // let xOffset = 0;
-                        // if (distanceFromCenter >= 0.5 && distanceFromCenter < 1.0) {
-                        //     xOffset = 0; // Items close to center
-                        // } else if (distanceFromCenter >= 1.0 && distanceFromCenter < 1.5) {
-                        //     xOffset = 10; // Level 1 offset
-                        // } else if (distanceFromCenter >= 1.5 && distanceFromCenter < 2.0) {
-                        //     xOffset = 20; // Level 2 offset
-                        // } else if (distanceFromCenter >= 2.0 && distanceFromCenter < 2.5) {
-                        //     xOffset = 30; // Level 3 offset
-                        // } else if (distanceFromCenter >= 2.5 && distanceFromCenter < 3.0) {
-                        //     xOffset = 40; // Level 4 offset
-                        // } else if (distanceFromCenter >= 3.0 && distanceFromCenter < 3.5) {
-                        //     xOffset = 50; // Level 5 offset
-                        // } else if (distanceFromCenter >= 3.5) {
-                        //     xOffset = 60; // Level 6 offset (furthest items)
-                        // }
                         
                         return html`
                         <div style="display: flex; 
                                     flex-direction: row; 
-                                    height: 12px; 
-                                    align-items: left; 
-                                    justify-content: left;
+                                    height: 14px; 
+                                    align-items: right; 
+                                    justify-content: right;
                                     gap: 6px;
                                     margin-bottom: 8px;
                                     width: 100%;
                                     overflow-x: visible;
-                                    margin-left: -14px;
-                                    transform: translateX(${xOffset}px);
-                                    transform-origin: left center;
-                                    transition: transform 0.1s ease;">
-                                    <!--
-                            ${store.isConnectionVisible ? html`
-                                <div  style="width:6px; 
-                                            height:6px; 
-                                            background-color: #FF9D00; 
-                                            border-radius: 8px;
-                                            border-style: solid;
-                                            border-width: 2px;
-                                            border-color: #00000070;
-                                            cursor: pointer;"
-                                      @pointerdown=${(e: PointerEvent) => this.onDotClick(e, connectionLabel, 'left')}>
-                                </div>
-                                ` : html``}
-                                    -->
+                                    margin-left: -26px;
+                                    transform: translateX(${itemStyle.xOffset}px) scale(${itemStyle.scale});
+                                    transform-origin: center;
+                                    transition: transform 0.2s ease, opacity 0.2s ease, border-radius 0.2s ease;
+                                    opacity: ${itemStyle.opacity};
+                                    border-radius: ${itemStyle.borderRadius};">
 
                                     
                                 ${(connectionLabel != "") ? html`
                                     <sp-button @click=${() => this.onActionButtonClick(connectionLabel)} 
                                             style="border-radius: 24px;
                                                     --spectrum-button-m-accent-fill-texticon-border-color: #00000070;
-                                                    --spectrum-button-m-accent-fill-texticon-background-color: transparent;
-                                                    --spectrum-button-m-accent-fill-texticon-background-color-focus: transparent;
-                                                    --spectrum-button-m-accent-fill-texticon-text-color: #444444;
-                                                    background-color: transparent !important;">
-                                        ${connectionLabel}
+                                                    ${connectionLabel.includes("!") ? "--spectrum-button-m-accent-fill-texticon-text-color: #333333;--spectrum-semantic-cta-background-color-default: #eeeeee;" : ""}
+                                                    ">
+                                        <span style="opacity: ${itemStyle.hideText ? '0' : '1'}; transition: opacity 0.2s ease;">
+                                            ${connectionLabel.replace("!", "")}
+                                        </span>
                                     </sp-button>
-
-                                    <!--
-                                    <img src="images/he-icon-eyedrop.png" alt="background" 
-                                    style="position: relative; 
-                                            width: 32px; 
-                                            height: 32px;
-                                            margin-top: 0px;
-                                            cursor: pointer;"
-                                        @click=${(e: Event) => this.handleEyedropperClick(e, connectionLabel)} >
-                                        -->
                                     ` 
                                     :
                                     html`
                                         <div style="width: 32px; height: 32px;"></div>
                                         `}
 
-                                
-
-                            <!--
-                            ${store.isConnectionVisible ? html`
-                                <div  style="width: 16px; 
-                                            height: 16px; 
-                                            background-color: #FF9D00; 
-                                            border-radius: 36px;
-                                            border-style: solid;
-                                            border-width: 2px;
-                                            border-color: #00000070;
-                                            cursor: pointer;"
-                                      @pointerdown=${(e: PointerEvent) => this.onDotClick(e, connectionLabel, 'right')}>
-                                      <sp-icon-chevron-right size="s" class="white-icon"></sp-icon-chevron-right>
-                                </div>
-                                ` : html``} -->
                         </div>
                     `;
                     })}
@@ -708,73 +667,7 @@ export class ContextMenu extends MobxLitElement {
         `;
     }
 
-    // private renderItems() {
-    //     let result: any[] = [];
-    //     let index = 0;
-    //     this.actionShapes = [];
-
-    //     store.currentMenuItems.map(shape => {
-    //             this.actionShapes.push(shape);
-    //             result.push(
-    //                 html`
-    //                 <div class="menu-item-container"
-    //                     id=${index++}
-    //                     @pointerover=${this.over}
-    //                     @pointerout=${this.out}
-    //                     @pointerdown=${this.onClickItem}
-    //                 >
-    //                     <div class=${shape.isSelected ? "menu-item-selected-gradient" : "empty"}>
-    //                         <div class="menu-item">
-    //                             <div class="menu-label">${shape.label}</div>
-    //                         </div>
-    //                     </div>
-    //                 </div>
-    //                 `);
-    //     });
-           
-    //     return html`${result}`; 
-    // }
-
-
-    // private over(e: { target: Element; }) {
-    //     const item = (e.target as Element);
-    //     if((item.id)) {
-    //         this.turnOverOff();
-    //         const index: number = parseInt( item.id );
-    //         this.actionShapes[index].isHovered = true;
-    //     }
-    // }
-
-    // private out() {
-    //     this.turnOverOff();
-    // }
-
-    // private onClickItem(e: { target: Element; }) {
-    //     this.turnOverOff();
-    //     if (!store.isShiftDown) {
-    //         store.clearSelectedShapes();
-    //         this.turnSelectedOff();
-    //     }
-    //     const index: number = parseInt( (e.target as Element).id );
-    //     store.selectThis(this.actionShapes[index]);
-    //     // this.actionShapes[index].isSelected = true;
-    //     // store.selectedShapes.push();
-    //     // store.updateProperties(this.actionShapes[index]);
-    //     store.showContextMenu = false;
-    // }
-
-    // private turnOverOff() {
-    //     this.actionShapes.map(shape => {
-    //         shape.isHovered = false;
-    //     });
-    // }
-
-    // private turnSelectedOff() {
-    //     this.actionShapes.map(shape => {
-    //         shape.isSelected = false;
-    //     });
-        
-    // }
+   
 
     private resetSofaOrange() {
         const artwork2 = store.shapes.find(shape => shape.id === "artwork2") as Photo;
@@ -796,40 +689,40 @@ export class ContextMenu extends MobxLitElement {
         return angle;
     }
 
-    private onDotClick(e: PointerEvent, connectionLabel: string, position: 'left' | 'right') {
-        e.stopPropagation(); // Prevent event bubbling
+    // private onDotClick(e: PointerEvent, connectionLabel: string, position: 'left' | 'right') {
+    //     e.stopPropagation(); // Prevent event bubbling
 
-        store.connectionDirection = position;
-        store.currentConnectionLabel = connectionLabel;
-        //this.dragFromPosition = position;
+    //     store.connectionDirection = position;
+    //     store.currentConnectionLabel = connectionLabel;
+    //     //this.dragFromPosition = position;
         
-        // Start dragging
-        this.isDragging = true;
-        this.dragStartPosition = { x: e.clientX, y: e.clientY };
-        this.currentMousePosition = { x: e.clientX, y: e.clientY };
-        this.showDragLine = true;
+    //     // Start dragging
+    //     this.isDragging = true;
+    //     this.dragStartPosition = { x: e.clientX, y: e.clientY };
+    //     this.currentMousePosition = { x: e.clientX, y: e.clientY };
+    //     this.showDragLine = true;
 
-        store.currentShapes = [];
+    //     store.currentShapes = [];
         
-        // Add mouse move and mouse up listeners
-        document.addEventListener('pointermove', this.onMouseMove);
-        document.addEventListener('pointerup', this.onMouseUp);
+    //     // Add mouse move and mouse up listeners
+    //     document.addEventListener('pointermove', this.onMouseMove);
+    //     document.addEventListener('pointerup', this.onMouseUp);
         
-        // Trigger re-render to show the line
-        this.requestUpdate();
+    //     // Trigger re-render to show the line
+    //     this.requestUpdate();
         
-        // You can add specific logic here based on the dot position and connection
-        switch (position) {
-            case 'left':
-                console.log("Left connection dot clicked");
+    //     // You can add specific logic here based on the dot position and connection
+    //     switch (position) {
+    //         case 'left':
+    //             console.log("Left connection dot clicked");
                 
-                break;
-            case 'right':
-                console.log("Right connection dot clicked");
+    //             break;
+    //         case 'right':
+    //             console.log("Right connection dot clicked");
                 
-                break;
-        }
-    }
+    //             break;
+    //     }
+    // }
 
     private onMouseMove = (e: PointerEvent) => {
         if (!this.isDragging) return;
@@ -976,58 +869,34 @@ export class ContextMenu extends MobxLitElement {
 
     };
 
-    // private handleWheel = (e: WheelEvent) => {
+
+
+    // private handleEyedropperClick = (e: Event, connectionLabel: string) => {
+    //     e.stopPropagation();
     //     e.preventDefault();
+
+    //     store.HeliosPropertiesVisibility = false;
+    //     store.contextMenuVisibility = false;
+
+    //     store.targetEyedropper = store.currentDownShape?.id ?? "";
+
+    //     store.showContextMenu = false;
+    //     store.clearSelectedShapes();
+
+    //     // Hide the cursor globally
+    //     document.body.style.cursor = 'none';
         
+    //     // Create a floating eyedropper icon that follows the mouse
+    //     this.createFloatingEyedropper(e as MouseEvent, connectionLabel);
         
-    //     const target = e.currentTarget as HTMLElement;
-    //     if (target) {
-    //         const heightItem = 40;
-    //         const currentScrollTop = target.scrollTop;
-    //         let newScrollTop = currentScrollTop + (heightItem * ( Math.abs(e.deltaY) / e.deltaY )); 
-
-    //         newScrollTop = Math.floor(newScrollTop / heightItem) * heightItem;
-
-
-    //         this.currentScrollTop = (newScrollTop > 0) ? newScrollTop : 0;
-            
-    //         target.scrollTo({
-    //             top: newScrollTop,
-    //             behavior: 'smooth'
-    //         });
-            
-    //         // Trigger re-render to update arc positions
-    //         this.requestUpdate();
-    //     }
-    // };
-
-
-    private handleEyedropperClick = (e: Event, connectionLabel: string) => {
-        e.stopPropagation();
-        e.preventDefault();
-
-        store.HeliosPropertiesVisibility = false;
-        store.contextMenuVisibility = false;
-
-        store.targetEyedropper = store.currentDownShape?.id ?? "";
-
-        store.showContextMenu = false;
-        store.clearSelectedShapes();
-
-        // Hide the cursor globally
-        document.body.style.cursor = 'none';
+    //     // Add mouse move listener to track mouse position
+    //     document.addEventListener('mousemove', this.handleMouseMove);
         
-        // Create a floating eyedropper icon that follows the mouse
-        this.createFloatingEyedropper(e as MouseEvent, connectionLabel);
-        
-        // Add mouse move listener to track mouse position
-        document.addEventListener('mousemove', this.handleMouseMove);
-        
-        // Add click listener to stop eyedropper mode
-        this.eyedropperClickHandler = () => this.stopEyedropperMode();
-        document.addEventListener('click', this.eyedropperClickHandler);
+    //     // Add click listener to stop eyedropper mode
+    //     this.eyedropperClickHandler = () => this.stopEyedropperMode();
+    //     document.addEventListener('click', this.eyedropperClickHandler);
 
-    }
+    // }
 
 
     private floatingEyedropper: HTMLImageElement | null = null;
@@ -1036,127 +905,127 @@ export class ContextMenu extends MobxLitElement {
     private loupeImg: HTMLImageElement | null = null;
     private eyedropperClickHandler: ((e: MouseEvent) => void) | null = null;
     
-    private createFloatingEyedropper = (e: MouseEvent, connectionLabel: string) => {
-        // Remove existing floating elements if any
-        if (this.floatingEyedropper) {
-            this.floatingEyedropper.remove();
-        }
-        if (this.floatingDiv) {
-            this.floatingDiv.remove();
-        }
+    // private createFloatingEyedropper = (e: MouseEvent, connectionLabel: string) => {
+    //     // Remove existing floating elements if any
+    //     if (this.floatingEyedropper) {
+    //         this.floatingEyedropper.remove();
+    //     }
+    //     if (this.floatingDiv) {
+    //         this.floatingDiv.remove();
+    //     }
 
-        store.currentProperty = connectionLabel ?? "";
+    //     store.currentProperty = connectionLabel ?? "";
         
-        // Create the original floating eyedropper image
-        this.floatingEyedropper = document.createElement('img');
-        this.floatingEyedropper.src = 'images/he-cursor-eyedrop.gif';
-        this.floatingEyedropper.style.position = 'fixed';
-        this.floatingEyedropper.style.width = '37px';
-        this.floatingEyedropper.style.height = '37px';
-        this.floatingEyedropper.style.pointerEvents = 'none';
-        this.floatingEyedropper.style.zIndex = '10000'; // Higher than the div
-        this.floatingEyedropper.style.transform = 'translate(-18.5px, -18.5px) scale(1.25)'; // Center the icon on cursor
-        this.floatingEyedropper.style.filter = 'drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.6))';
+    //     // Create the original floating eyedropper image
+    //     this.floatingEyedropper = document.createElement('img');
+    //     this.floatingEyedropper.src = 'images/he-cursor-eyedrop.gif';
+    //     this.floatingEyedropper.style.position = 'fixed';
+    //     this.floatingEyedropper.style.width = '37px';
+    //     this.floatingEyedropper.style.height = '37px';
+    //     this.floatingEyedropper.style.pointerEvents = 'none';
+    //     this.floatingEyedropper.style.zIndex = '10000'; // Higher than the div
+    //     this.floatingEyedropper.style.transform = 'translate(-18.5px, -18.5px) scale(1.25)'; // Center the icon on cursor
+    //     this.floatingEyedropper.style.filter = 'drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.6))';
         
-        // Create the floating div container with loupe design
-        this.floatingDiv = document.createElement('div');
-        this.floatingDiv.style.position = 'fixed';
-        this.floatingDiv.style.display = 'flex';
-        this.floatingDiv.style.flexDirection = 'column';
-        this.floatingDiv.style.alignItems = 'center';
-        this.floatingDiv.style.justifyContent = 'center';
-        this.floatingDiv.style.width = '300px';
-        this.floatingDiv.style.height = '89px';
-        this.floatingDiv.style.pointerEvents = 'none';
-        this.floatingDiv.style.zIndex = '9995'; // Higher than the eyedropper
-        this.floatingDiv.style.transform = 'translate(-150px, -100px)'; // Center the div on cursor
+    //     // Create the floating div container with loupe design
+    //     this.floatingDiv = document.createElement('div');
+    //     this.floatingDiv.style.position = 'fixed';
+    //     this.floatingDiv.style.display = 'flex';
+    //     this.floatingDiv.style.flexDirection = 'column';
+    //     this.floatingDiv.style.alignItems = 'center';
+    //     this.floatingDiv.style.justifyContent = 'center';
+    //     this.floatingDiv.style.width = '300px';
+    //     this.floatingDiv.style.height = '89px';
+    //     this.floatingDiv.style.pointerEvents = 'none';
+    //     this.floatingDiv.style.zIndex = '9995'; // Higher than the eyedropper
+    //     this.floatingDiv.style.transform = 'translate(-150px, -100px)'; // Center the div on cursor
 
         
-        // Create circle background div that can be filled with color or image
-        this.circleDiv = document.createElement('div');
-        this.circleDiv.style.position = 'absolute';
-        this.circleDiv.style.width = '63px';
-        this.circleDiv.style.height = '63px';
-        this.circleDiv.style.borderRadius = '50%';
-        this.circleDiv.style.top = '3px';
-        this.circleDiv.style.left = '50%';
-        this.circleDiv.style.transform = 'translateX(-50%) scale(0)';
-        this.circleDiv.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-        this.circleDiv.style.opacity = '0';
-        this.circleDiv.style.transition = 'opacity 0.15s ease-out, transform 0.15s ease-out';
-        this.circleDiv.style.transformOrigin = 'center bottom';
-        // Default to a solid color - can be changed to backgroundImage for images
-        this.circleDiv.style.backgroundColor = store.loupeColor;
-        this.circleDiv.style.backgroundImage = 'url(' + store.loupeImg + ')';
-        this.circleDiv.style.backgroundSize = 'cover';
-        this.circleDiv.style.backgroundPosition = 'center';
+    //     // Create circle background div that can be filled with color or image
+    //     this.circleDiv = document.createElement('div');
+    //     this.circleDiv.style.position = 'absolute';
+    //     this.circleDiv.style.width = '63px';
+    //     this.circleDiv.style.height = '63px';
+    //     this.circleDiv.style.borderRadius = '50%';
+    //     this.circleDiv.style.top = '3px';
+    //     this.circleDiv.style.left = '50%';
+    //     this.circleDiv.style.transform = 'translateX(-50%) scale(0)';
+    //     this.circleDiv.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+    //     this.circleDiv.style.opacity = '0';
+    //     this.circleDiv.style.transition = 'opacity 0.15s ease-out, transform 0.15s ease-out';
+    //     this.circleDiv.style.transformOrigin = 'center bottom';
+    //     // Default to a solid color - can be changed to backgroundImage for images
+    //     this.circleDiv.style.backgroundColor = store.loupeColor;
+    //     this.circleDiv.style.backgroundImage = 'url(' + store.loupeImg + ')';
+    //     this.circleDiv.style.backgroundSize = 'cover';
+    //     this.circleDiv.style.backgroundPosition = 'center';
 
-         // Create the loupe image
-         this.loupeImg = document.createElement('img');
-         this.loupeImg.src = 'images/he-loupe.png';
-         this.loupeImg.style.width = '67px';
-         this.loupeImg.style.height = '89px';
-         this.loupeImg.style.position = 'absolute';
-         this.loupeImg.style.top = '0';
-         this.loupeImg.style.left = '50%';
-         this.loupeImg.style.transform = 'translateX(-50%) scale(0)';
-         this.loupeImg.style.opacity = '0';
-         this.loupeImg.style.transition = 'opacity 0.15s ease-out, transform 0.15s ease-out';
-         this.loupeImg.style.transformOrigin = 'center bottom';
-         this.loupeImg.style.filter = 'drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.6))';
+    //      // Create the loupe image
+    //      this.loupeImg = document.createElement('img');
+    //      this.loupeImg.src = 'images/he-loupe.png';
+    //      this.loupeImg.style.width = '67px';
+    //      this.loupeImg.style.height = '89px';
+    //      this.loupeImg.style.position = 'absolute';
+    //      this.loupeImg.style.top = '0';
+    //      this.loupeImg.style.left = '50%';
+    //      this.loupeImg.style.transform = 'translateX(-50%) scale(0)';
+    //      this.loupeImg.style.opacity = '0';
+    //      this.loupeImg.style.transition = 'opacity 0.15s ease-out, transform 0.15s ease-out';
+    //      this.loupeImg.style.transformOrigin = 'center bottom';
+    //      this.loupeImg.style.filter = 'drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.6))';
 
-         // Create the stroke text span
-        const strokeSpan = document.createElement('span');
-        strokeSpan.textContent = store.currentProperty;
-        strokeSpan.style.position = 'absolute';
-        strokeSpan.style.top = '71px';
-        strokeSpan.style.left = '50%';
-        strokeSpan.style.transform = 'translateX(-50%)';
-        strokeSpan.style.color = '#ffffff';
-        strokeSpan.style.fontWeight = 'bold';
-        strokeSpan.style.webkitTextStroke = '4px #ff9d00';
-        strokeSpan.style.fontSize = '13px';
-        strokeSpan.style.fontFamily = 'system-ui, -apple-system, sans-serif';
-        (strokeSpan.style as any).textStroke = '2px #ff9d00';
-        strokeSpan.style.filter = 'drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.6))';
+    //      // Create the stroke text span
+    //     const strokeSpan = document.createElement('span');
+    //     strokeSpan.textContent = store.currentProperty;
+    //     strokeSpan.style.position = 'absolute';
+    //     strokeSpan.style.top = '71px';
+    //     strokeSpan.style.left = '50%';
+    //     strokeSpan.style.transform = 'translateX(-50%)';
+    //     strokeSpan.style.color = '#ffffff';
+    //     strokeSpan.style.fontWeight = 'bold';
+    //     strokeSpan.style.webkitTextStroke = '4px #ff9d00';
+    //     strokeSpan.style.fontSize = '13px';
+    //     strokeSpan.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+    //     (strokeSpan.style as any).textStroke = '2px #ff9d00';
+    //     strokeSpan.style.filter = 'drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.6))';
         
-        // Create the white text span
-        const whiteSpan = document.createElement('span');
-        whiteSpan.textContent = store.currentProperty;
-        whiteSpan.style.position = 'absolute';
-        whiteSpan.style.top = '71px';
-        whiteSpan.style.left = '50%';
-        whiteSpan.style.transform = 'translateX(-50%)';
-        whiteSpan.style.color = '#ffffff';
-        whiteSpan.style.fontSize = '13px';
-        whiteSpan.style.fontFamily = 'system-ui, -apple-system, sans-serif';
-        whiteSpan.style.fontWeight = 'bold';
+    //     // Create the white text span
+    //     const whiteSpan = document.createElement('span');
+    //     whiteSpan.textContent = store.currentProperty;
+    //     whiteSpan.style.position = 'absolute';
+    //     whiteSpan.style.top = '71px';
+    //     whiteSpan.style.left = '50%';
+    //     whiteSpan.style.transform = 'translateX(-50%)';
+    //     whiteSpan.style.color = '#ffffff';
+    //     whiteSpan.style.fontSize = '13px';
+    //     whiteSpan.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+    //     whiteSpan.style.fontWeight = 'bold';
         
-        // Append elements to the div
-        this.floatingDiv.appendChild(this.circleDiv);
-        this.floatingDiv.appendChild(this.loupeImg);
-        this.floatingDiv.appendChild(strokeSpan);
-        this.floatingDiv.appendChild(whiteSpan);
+    //     // Append elements to the div
+    //     this.floatingDiv.appendChild(this.circleDiv);
+    //     this.floatingDiv.appendChild(this.loupeImg);
+    //     this.floatingDiv.appendChild(strokeSpan);
+    //     this.floatingDiv.appendChild(whiteSpan);
 
        
         
-        // Add both elements to document body
-        document.body.appendChild(this.floatingDiv);
-        document.body.appendChild(this.floatingEyedropper);
+    //     // Add both elements to document body
+    //     document.body.appendChild(this.floatingDiv);
+    //     document.body.appendChild(this.floatingEyedropper);
 
-        window.addEventListener("keydown", this.handleEscape);
+    //     window.addEventListener("keydown", this.handleEscape);
         
 
-        // Position both elements at cursor
-        if (this.floatingDiv) {
-            this.floatingDiv.style.left = `${e.clientX}px`;
-            this.floatingDiv.style.top = `${e.clientY}px`;
-        }
-        if (this.floatingEyedropper) {
-            this.floatingEyedropper.style.left = `${e.clientX}px`;
-            this.floatingEyedropper.style.top = `${e.clientY}px`;
-        }
-    }
+    //     // Position both elements at cursor
+    //     if (this.floatingDiv) {
+    //         this.floatingDiv.style.left = `${e.clientX}px`;
+    //         this.floatingDiv.style.top = `${e.clientY}px`;
+    //     }
+    //     if (this.floatingEyedropper) {
+    //         this.floatingEyedropper.style.left = `${e.clientX}px`;
+    //         this.floatingEyedropper.style.top = `${e.clientY}px`;
+    //     }
+    // }
     
     private handleMouseMove = (e: MouseEvent) => {
         if (this.floatingEyedropper) {
@@ -1201,39 +1070,64 @@ export class ContextMenu extends MobxLitElement {
         }
     }
     
-    private stopEyedropperMode = () => {
-        // Restore normal cursor
-        document.body.style.cursor = '';
+    // private stopEyedropperMode = () => {
+    //     // Restore normal cursor
+    //     document.body.style.cursor = '';
 
-        window.removeEventListener("keydown", this.handleEscape);
+    //     window.removeEventListener("keydown", this.handleEscape);
 
-        store.doEyedropping();
+    //     store.doEyedropping();
 
-        // Remove floating elements
-        if (this.floatingEyedropper) {
-            this.floatingEyedropper.remove();
-            this.floatingEyedropper = null;
-        }
-        if (this.floatingDiv) {
-            this.floatingDiv.remove();
-            this.floatingDiv = null;
-        }
-        // Clear references to child elements
-        this.circleDiv = null;
-        this.loupeImg = null;
+    //     // Remove floating elements
+    //     if (this.floatingEyedropper) {
+    //         this.floatingEyedropper.remove();
+    //         this.floatingEyedropper = null;
+    //     }
+    //     if (this.floatingDiv) {
+    //         this.floatingDiv.remove();
+    //         this.floatingDiv = null;
+    //     }
+    //     // Clear references to child elements
+    //     this.circleDiv = null;
+    //     this.loupeImg = null;
         
-        // Remove event listeners
-        document.removeEventListener('mousemove', this.handleMouseMove);
-        if (this.eyedropperClickHandler) {
-            document.removeEventListener('click', this.eyedropperClickHandler);
-            this.eyedropperClickHandler = null;
-        }
+    //     // Remove event listeners
+    //     document.removeEventListener('mousemove', this.handleMouseMove);
+    //     if (this.eyedropperClickHandler) {
+    //         document.removeEventListener('click', this.eyedropperClickHandler);
+    //         this.eyedropperClickHandler = null;
+    //     }
         
 
-    }
+    // }
 
     private onActionButtonClick(actionLabel: string) {
         store.contextMenuVisibility = false;
+
+        if (!actionLabel.includes("!")) {
+            // Add "!" to current item
+            //store.currentConnections[index] = "!" + actionLabel;
+            
+            // Check all items in store.menuPeople and add "!" to matching items
+            store.menuWalls.forEach((menuItem, menuIndex) => {
+                // Only add "!" if the menuItem doesn't already start with "!"
+                if (menuItem.length > 0 && menuItem[0] !== "!" && menuItem === actionLabel) {
+                    store.menuWalls[menuIndex] = "!" + menuItem;
+                }
+            });
+            store.menuObjects.forEach((menuItem, menuIndex) => {
+                // Only add "!" if the menuItem doesn't already start with "!"
+                if (menuItem.length > 0 && menuItem[0] !== "!" && menuItem === actionLabel) {
+                    store.menuObjects[menuIndex] = "!" + menuItem;
+                }
+            });
+            store.menuPeople.forEach((menuItem, menuIndex) => {
+                // Only add "!" if the menuItem doesn't already start with "!"
+                if (menuItem.length > 0 && menuItem[0] !== "!" && menuItem === actionLabel) {
+                    store.menuPeople[menuIndex] = "!" + menuItem;
+                }
+            });
+        }
 
         this.onConnectionClick(actionLabel);
 
@@ -1463,15 +1357,19 @@ export class ContextMenu extends MobxLitElement {
         
         e.preventDefault();
         
-        const heightItem = 20;
-        const currentScrollTop = container.scrollTop;
-        let newScrollTop = currentScrollTop + (heightItem * (Math.abs(e.deltaY) / e.deltaY)); 
-
-        newScrollTop = Math.floor(newScrollTop / (heightItem)) * (heightItem);
-
-        this.currentScrollTop = (newScrollTop > 0) ? newScrollTop : 0;
-
+        // Reduced sensitivity: smaller scroll amount per wheel tick
+        const scrollSensitivity = 0.4; // Adjust this value (0.1 = very slow, 1.0 = normal speed)
+        const scrollAmount = e.deltaY * scrollSensitivity;
         
+        const currentScrollTop = container.scrollTop;
+        let newScrollTop = currentScrollTop + scrollAmount; 
+
+        // Ensure scroll stays within bounds
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        newScrollTop = Math.max(0, Math.min(newScrollTop, maxScroll));
+
+        this.currentScrollTop = newScrollTop;
+
         container.scrollTo({
             top: newScrollTop,
             behavior: 'auto'
@@ -1486,6 +1384,6 @@ export class ContextMenu extends MobxLitElement {
 // See https://lit.dev/docs/components/defining/#typescript-typings
 declare global {
     interface HTMLElementTagNameMap {
-        "app-context-menu": ContextMenu;
+        "app-context-menu2": ContextMenu2;
     }
 }

@@ -664,6 +664,69 @@ export class Store {
 
     public currentLevel = 0;
 
+    public menuPeople: Array<string> = [
+        "",
+        "",
+        "replace object",
+        "age",
+        "body posing",
+        "body type",
+        "clothes",
+        "eye direction",
+        "eye (red eye)",
+        "expression",
+        "face direction",
+        "facial hair",
+        "gender",
+        "hair color",
+        "hair style",
+        "hair length",
+        "hair texture",
+        "hair volume",
+        "hair density",
+        "hair shine",
+        "lips fullness",
+        "nose type",
+        "nose size",
+        "",
+        ""];
+
+    public menuObjects: Array<string> = [
+        "",
+        "",
+        "add object",
+        "replace object",
+        "color",
+        "material",
+        "style",
+        "",
+        "",
+        "",
+        ""];
+
+    public menuWalls: Array<string> = [
+        "",
+        "",
+        "add curtain",
+        "add texture",
+        "add wallpaper",
+        "architecture style",
+        "architecture details", 
+        "brilliancy",
+        "color",
+        "height",
+        "interior style",
+        "lighting",
+        "material",
+        "style",
+        "texture",
+        "wallpaper",
+        "",
+        "",
+        "",
+        ""];
+    
+
     // --- Shapes ---
 
     public readonly artboard: Artboard = new Artboard();
@@ -1641,7 +1704,7 @@ export class Store {
     public showIsGenerating = false;
     public artwork1 = this.shapes.find(shape => shape.id === "artwork1") as Photo;
     public generating = this.shapes.find(shape => shape.id === "generating") as Photo;
-    public showPromptInput = false;
+    public showPromptInput = true;
     public showBrowseImagesPanel = false;
     public currentColorReference = "";
     public currentMaterialReference = "";
